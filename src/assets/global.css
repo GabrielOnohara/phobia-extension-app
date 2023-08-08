@@ -1,0 +1,56 @@
+/* global.css */
+
+body {
+    width: 350px;
+    height: 500px;
+    background-color: #ccc;
+  }
+  
+  #root {
+    height: 100%;
+  }
+  
+  .App {
+    font-family: "Roboto";
+    height: 100%;
+    background-color: #ccc;
+    overflow-y: scroll;
+  }
+  
+  .container {
+    position: relative;
+    min-height: 100%;
+  }
+  
+  .finished {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+  
+  .no-tasks {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    height: 450px;
+  }
+  
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.2);
+  }
+  
+  *::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+    border: 20px solid rgba(0, 0, 0, 0.2);
+  }
