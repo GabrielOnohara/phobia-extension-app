@@ -30,13 +30,24 @@ chrome.tabs.onActivated.addListener(
     // console.log('Window ID activated:', windowId);
     // // chrome.tabs.sendMessage(tabId, { action: 'tabWasRemoved' });
     if(!informationControlObject.tabs.hasOwnProperty(tabId.toString())){
-      informationControlObject.tabs[tabId.toString()] = {active: true}
-      if(!informationControlObject.windows.includes(windowId)){
-        informationControlObject.windows.push(windowId)
-      }
-      console.table(informationControlObject.tabs);
-      console.table(informationControlObject.urls);
-      console.log(informationControlObject.windows);
+      chrome.tabs.get(tabId, tabInfo => {
+          if(tabInfo.status === 'complete'){
+            if(tabInfo.url.length){
+              let url = tabInfo.url
+              informationControlObject.tabs[tabId.toString()] = {active: true, windowId: windowId, url: url}
+    
+              if(!informationControlObject.windows.includes(windowId)){
+                informationControlObject.windows.push(windowId)
+              }
+              if(!informationControlObject.urls.hasOwnProperty(url)){
+                informationControlObject.urls[url] = {active:true, processed: false}
+              }
+             }
+          }
+          console.table(informationControlObject.tabs);
+          console.table(informationControlObject.urls);
+          console.log(informationControlObject.windows);
+      })
     }else{
 
     }
@@ -51,9 +62,17 @@ chrome.tabs.onRemoved.addListener(
     // console.log('Window is Closing removed:', isWindowClosing);
     // chrome.tabs.sendMessage(tabId, { action: 'tabWasRemoved' });
     if(informationControlObject.tabs.hasOwnProperty(tabId.toString())){
+
       delete informationControlObject.tabs[tabId.toString()]
 
       if(isWindowClosing){
+        //remove todas as tabs que foram fechadas
+        let allTabKeys = Object.keys(informationControlObject.tabs)
+        allTabKeys.forEach(tab =>{
+          if(tab.windowId === windowId){
+            delete informationControlObject.tabs[tabId.toString()]
+          }
+        })
         const index = informationControlObject.windows.indexOf(windowId)
         informationControlObject.windows.splice(index, 1)
       }
@@ -63,5 +82,36 @@ chrome.tabs.onRemoved.addListener(
     }else{
 
     }
+  }
+)
+
+
+//Listener que funciona quando trocamos de janela
+chrome.windows.onFocusChanged.addListener(
+  (windowId) =>{
+    chrome.tabs.query({windowId: windowId, active:true}, tabs =>{
+      let tab = tabs[0]
+      if(!informationControlObject.tabs.hasOwnProperty(tab.id.toString())){
+            if(tab.status === 'complete'){
+              if(tab.url.length){
+                let url = tab.url
+                informationControlObject.tabs[tab.id.toString()] = {active: true, windowId: windowId, url: url}
+      
+                if(!informationControlObject.windows.includes(windowId)){
+                  informationControlObject.windows.push(windowId)
+                }
+                if(!informationControlObject.urls.hasOwnProperty(url)){
+                  informationControlObject.urls[url] = {active:true, processed: false}
+                }
+               }
+            }
+            console.table(informationControlObject.tabs);
+            console.table(informationControlObject.urls);
+            console.log(informationControlObject.windows);
+
+      }else{
+  
+      }
+    })
   }
 )
