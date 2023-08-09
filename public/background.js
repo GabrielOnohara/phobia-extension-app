@@ -115,3 +115,9 @@ chrome.windows.onFocusChanged.addListener(
     })
   }
 )
+
+/* a fazer
+1 - verificar a remocao de cada uma delas 
+2 - fazer processo de borramento automatica
+3 - comecar processo de animacao 
+*/
