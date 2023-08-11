@@ -2,23 +2,23 @@
     "name": "Phobia Extension",
     "description": "Extension for people that have some specific phobias",
     "version": "1.0",
-    "manifest_version": 2,
-    "browser_action": {
-        "default_popup": "index.html",
-        "default_title": "Phobia Extension App"
-    },
+    "manifest_version": 3,
     "permissions": [
-        "activeTab",
-        "tabs"
+      "activeTab",
+      "scripting"
     ],
+    "action": {
+      "default_popup": "index.html",
+      "default_title": "Phobia Extension App"
+    },
     "background": {
-        "scripts": ["background.js"],
-        "persistent": false
+      "service_worker": "background.js"
     },
     "content_scripts": [
-        {
+      {
         "matches": ["<all_urls>"],
         "js": ["contentScript.js"]
-        }
+      }
     ]
-}
+  }
+  
