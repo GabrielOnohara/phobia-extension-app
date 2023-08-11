@@ -18,7 +18,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   } 
   if (changeInfo.url) {
     console.log('URL changed:', changeInfo.url);
-    // You can call manipulateDOM() here or perform other actions
+    if(!informationControlObject.urls.hasOwnProperty(changeInfo.url)){
+      informationControlObject.urls[changeInfo.url] = {active:true, processed: false}
+    }
   }
    
 });
