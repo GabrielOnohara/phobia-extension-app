@@ -34,44 +34,97 @@ chrome.runtime.onConnect.addListener(port => {
 });
 
 
-// //Listener que funciona quando atualizamos a tab
-// chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
-//   console.log("OnUpdated");
-//   // console.log('Tab Id updated:', tabId);
-//   // console.log('ChangeInfo updated:', changeInfo,);
-//   // console.log('Tab updated:', tab);
-
-//   if (changeInfo.status === 'complete') {
-//     // Send a message to the content script to collect images
-//     console.log("complete updated status");
-//     console.log(changeInfo);
-//     console.log(tab);
-//     // chrome.tabs.sendMessage(tabId, { action: 'mountLoadingDOM' }, response => {
-//     //   if (response.success) {
-//     //     console.log('mountLoadingDOM successful');
-//     //   }
-//     // });
+//Listener que funciona quando atualizamos a tab
+chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
+  console.log("OnUpdated");
+  // console.log('Tab Id updated:', tabId);
+  // console.log('ChangeInfo updated:', changeInfo,);
+  // console.log('Tab updated:', tab);
   
+  //verificado mudanca de status da pagina quando ela esta carregando
+  if (changeInfo.status === 'loading') {
+    console.log("laoding updated status");
+    console.log(tab);
+    console.log(changeInfo);
+    //verifica se o dado de url ja esta presente na variavel de tab
+    if(tab.url?.length){
+      //verifica se a tab eh nova
+      if(!informationControlObject.tabs.hasOwnProperty(tabId.toString())){
+        informationControlObject.tabs[tabId.toString()] = {windowId: tab.windowId, url: tab.url, processed: false}
+        if(!informationControlObject.windows.includes(tab.windowId)){
+          informationControlObject.windows.push(tab.windowId)
+        }
+        if(!informationControlObject.urls.hasOwnProperty(tab.url)){
+          informationControlObject.urls[tab.url] = {active:true, processed: false}
+        }
+      }   
 
-//     console.table(informationControlObject.tabs);
-//     console.table(informationControlObject.urls);
-//     console.log(informationControlObject.windows);
-//   } 
-//   if (changeInfo) {
-//     console.log('URL changed:', changeInfo);
-//     console.log(changeInfo);
-//     console.log(tab);
+      //adiciona uma nova url na variavel de controle
+      if(!informationControlObject.urls.hasOwnProperty(changeInfo.url)){
+        informationControlObject.urls[changeInfo.url] = {active:true, processed: false}
+      }
+      //atualiza url da tab
+      informationControlObject.tabs[tabId.toString()].url = tab.url
+      //sempre que uma tela for atualizada seu status sera reiniciada devido ha uma atualizacao de conteuda da propria tela
+      informationControlObject.tabs[tabId.toString()].processed = false
+    }
 
-//     //atualiza url da tab
-//     informationControlObject.tabs[tabId.toString()].url = changeInfo.url
+  } else if(changeInfo.status === 'complete') {
+    console.log("complete updated status");
+    console.log(changeInfo);
+    console.log(tab);
 
-//     //adiciona uma nova url
-//     if(!informationControlObject.urls.hasOwnProperty(changeInfo.url)){
-//       informationControlObject.urls[changeInfo.url] = {active:true, processed: false}
-//     }
-//   }
+    //verifica se o dado de url ja esta presente na variavel de tab
+    if(tab.url?.length){
+      //adiciona uma nova url na variavel de controle
+      if(!informationControlObject.urls.hasOwnProperty(changeInfo.url)){
+        informationControlObject.urls[changeInfo.url] = {active:true, processed: false}
+      }
+      //atualiza url da tab
+      informationControlObject.tabs[tabId.toString()].url = tab.url
+
+      //verifica se a url ja foi processada
+      if(informationControlObject.tabs[tabId.toString()]?.url !== undefined && !informationControlObject.tabs[tabId.toString()].processed){
+        console.log("tab will be processed")
+        //verifica conexao com content script
+        if(informationControlObject.contentScriptWasSetted){
+          chrome.tabs.sendMessage(tabId, { action: 'mountLoadingDOM' }, response => {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError);
+              return;
+            }else{
+              if (response?.status) {
+                console.log('mountLoadingDOM successful');
+                informationControlObject.tabs[tabId.toString()].processed = true
+              }
+            }
+          });
+        } else {
+          console.log('Conexão ainda não foi estabelecida');
+        }
+        
+      }   
+    }
+  }
+  
+  if (changeInfo.url) {
+    console.log('URL changed:', changeInfo);
+    console.log(changeInfo);
+    console.log(tab);
+
+    //atualiza url da tab
+    informationControlObject.tabs[tabId.toString()].url = changeInfo.url
+
+    //adiciona uma nova url
+    if(!informationControlObject.urls.hasOwnProperty(changeInfo.url)){
+      informationControlObject.urls[changeInfo.url] = {active:true, processed: false}
+    }
+  }
    
-// });
+    // console.table(informationControlObject.tabs);
+    // console.table(informationControlObject.urls);
+    // console.log(informationControlObject.windows);
+});
 
 // Listener que funciona quando clicamos para abrir a tab
 chrome.tabs.onActivated.addListener(
@@ -89,7 +142,7 @@ chrome.tabs.onActivated.addListener(
         //verifica se a tab eh nova
         if(!informationControlObject.tabs.hasOwnProperty(tabId.toString())){
           let url = tabInfo.url ?? ""
-          informationControlObject.tabs[tabId.toString()] = {windowId: windowId, url: url}
+          informationControlObject.tabs[tabId.toString()] = {windowId: windowId, url: url, processed: false}
           if(!informationControlObject.windows.includes(windowId)){
             informationControlObject.windows.push(windowId)
           }
@@ -98,7 +151,7 @@ chrome.tabs.onActivated.addListener(
           }
         }     
         //verifica se a url ja foi processada
-        if(informationControlObject.tabs[tabId.toString()]?.url !== undefined && !informationControlObject.urls[informationControlObject.tabs[tabId.toString()].url].processed){
+        if(informationControlObject.tabs[tabId.toString()]?.url !== undefined && !informationControlObject.tabs[tabId.toString()].processed){
           console.log("tab will be processed")
           //verifica conexao com content script
           if(informationControlObject.contentScriptWasSetted){
@@ -107,8 +160,9 @@ chrome.tabs.onActivated.addListener(
                 console.error(chrome.runtime.lastError);
                 return;
               }else{
-                if (response?.success) {
+                if (response?.status) {
                   console.log('mountLoadingDOM successful');
+                  informationControlObject.tabs[tabId.toString()].processed = true
                 }
               }
             });
