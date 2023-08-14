@@ -55,7 +55,7 @@ function mountLoadingDOM() {
       setTimeout(()=> {
         document.body.removeChild(loadingContainer);
 
-      }, 5000)
+      }, 2000)
       // Return a function to remove the changes
       return true
   } catch (error) {
