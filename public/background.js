@@ -43,9 +43,6 @@ chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
   
   //verificado mudanca de status da pagina quando ela esta carregando
   if (changeInfo.status === 'loading') {
-    console.log("laoding updated status");
-    console.log(tab);
-    console.log(changeInfo);
     //verifica se o dado de url ja esta presente na variavel de tab
     if(tab.url?.length){
       //verifica se a tab eh nova
@@ -70,10 +67,6 @@ chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
     }
 
   } else if(changeInfo.status === 'complete') {
-    console.log("complete updated status");
-    console.log(changeInfo);
-    console.log(tab);
-
     //verifica se o dado de url ja esta presente na variavel de tab
     if(tab.url?.length){
       //adiciona uma nova url na variavel de controle
@@ -108,10 +101,6 @@ chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
   }
   
   if (changeInfo.url) {
-    console.log('URL changed:', changeInfo);
-    console.log(changeInfo);
-    console.log(tab);
-
     //atualiza url da tab
     informationControlObject.tabs[tabId.toString()].url = changeInfo.url
 
@@ -120,10 +109,9 @@ chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
       informationControlObject.urls[changeInfo.url] = {active:true, processed: false}
     }
   }
-   
-    // console.table(informationControlObject.tabs);
-    // console.table(informationControlObject.urls);
-    // console.log(informationControlObject.windows);
+  // console.table(informationControlObject.tabs);
+  // console.table(informationControlObject.urls);
+  // console.log(informationControlObject.windows);
 });
 
 // Listener que funciona quando clicamos para abrir a tab
