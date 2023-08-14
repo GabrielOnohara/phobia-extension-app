@@ -100,11 +100,16 @@ chrome.tabs.onActivated.addListener(
         //verifica se a url ja foi processada
         if(informationControlObject.tabs[tabId.toString()]?.url !== undefined && !informationControlObject.urls[informationControlObject.tabs[tabId.toString()].url].processed){
           console.log("tab will be processed")
-          //verifica conexao
+          //verifica conexao com content script
           if(informationControlObject.contentScriptWasSetted){
             chrome.tabs.sendMessage(tabId, { action: 'mountLoadingDOM' }, response => {
-              if (response?.success) {
-                console.log('mountLoadingDOM successful');
+              if (chrome.runtime.lastError) {
+                console.error(chrome.runtime.lastError);
+                return;
+              }else{
+                if (response?.success) {
+                  console.log('mountLoadingDOM successful');
+                }
               }
             });
           } else {

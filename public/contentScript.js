@@ -1,12 +1,6 @@
 
 /* global chrome */
-// chrome.runtime.sendMessage({ action: 'collectImages' }, response => {
-  
-//   const images = document.querySelectorAll('img');
-//   const imageUrls = Array.from(images).map(img => img.src);
-
-//   chrome.runtime.sendMessage({ imageUrls });
-// });
+//Observacao sempre que for necessário responder uma mensagem que não seja assíncrona use o return true após o sendResponse
 let rawContentBody 
 
 //funcao que verifica conexao
@@ -17,20 +11,8 @@ port.onMessage.addListener(response => {
     console.log("Resposta do background script:", response.data);
 });
 
-//funcao que ouve as mensagens e aplica a funcao de acordo com seus conteúdos
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  switch (message.action) {
-    case "manipulateDOM":
-
-      const rawImgs = document.querySelectorAll('img');
-      rawImgs.forEach(img => {
-        img.style.filter = "blur(20px)";
-      });
-      sendResponse({ success: true });
-      break;
-
-    case "mountLoadingDOM":
-      let loadingInnerHTML = `
+function mountLoadingDOM(){
+  let loadingInnerHTML = `
         <div class= "phobia-container">
           <h1 class= "phobia-title">Verificando imagens sensíveis..</h1>
         </div>
@@ -60,19 +42,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // let rawContentBody = document.body.innerHTML;
       // let imgs  = document.body.querySelectorAll('img')
       
-      //zera o dom e salva dom antigo
-      console.log("zerando dom");
-      rawContentBody =  document.body.innerHTML
-      document.body.innerHTML = loadingInnerHTML
-
-      const imgs = rawContentBody.querySelectorAll('img')
-      imgs.forEach(img => {
-        img.style.filter = "blur(20px)";
-      });
-      
-      document.body.innerHTML = rawContentBody
-      
-      sendResponse({ success: true });
+      //salva dom antigo para voltar com ele processado
+      //altera o dom com uma mensagem de aviso 
+      try {
+        rawContentBody = document.body.innerHTML
+        document.body.innerHTML = loadingInnerHTML
+  
+        const imgs = rawContentBody.querySelectorAll('img')
+        imgs.forEach(img => {
+          img.style.filter = "blur(20px)";
+        });
+        
+        document.body.innerHTML = rawContentBody
+        
 
       // const body = document.querySelector('body');
       // body.insertAdjacentHTML('afterbegin', loadingInnerHTML);    
@@ -80,10 +62,43 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // Insira o conteúdo no início do <body>
       // body.insertAdjacentHTML('afterbegin', loadingInnerHTML);
 
-      break;
-  
+      } catch (error) {
+        //caso gere uma excecao retorna falso
+        return false
+      }finally {
+        
+      //retorna verdadeiro se realizou todas as operacoes
+        return true
+      }
+}
+
+//funcao que ouve as mensagens e aplica a funcao de acordo com seus conteúdos
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  switch (message.action) {
+    case "manipulateDOM":
+
+      const rawImgs = document.querySelectorAll('img');
+      rawImgs.forEach(img => {
+        img.style.filter = "blur(20px)";
+      });
+      setTimeout(function() {
+        sendResponse({status: true}); 
+      }, 1);
+      return true  
+
+    case "mountLoadingDOM":
+      if(mountLoadingDOM()){
+        setTimeout(function() {
+          sendResponse({status: true}); 
+        }, 1);
+      }else{
+        setTimeout(function() {
+          sendResponse({status: false});
+        }, 1);
+      }
+      return true  
     default:
-      break;
+      return true
   }
 });
 
