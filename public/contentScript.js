@@ -8,6 +8,16 @@
 //   chrome.runtime.sendMessage({ imageUrls });
 // });
 let rawContentBody 
+
+//funcao que verifica conexao
+const port = chrome.runtime.connect({ name: "contentScript" });
+port.postMessage({ data: "Mensagem do content script" });
+
+port.onMessage.addListener(response => {
+    console.log("Resposta do background script:", response.data);
+});
+
+//funcao que ouve as mensagens e aplica a funcao de acordo com seus conteúdos
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (message.action) {
     case "manipulateDOM":
