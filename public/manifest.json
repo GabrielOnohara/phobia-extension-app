@@ -4,8 +4,9 @@
     "version": "1.0",
     "manifest_version": 3,
     "permissions": [
-      "activeTab",
-      "scripting"
+        "activeTab",
+        "scripting",
+        "tabs"
     ],
     "action": {
       "default_popup": "index.html",

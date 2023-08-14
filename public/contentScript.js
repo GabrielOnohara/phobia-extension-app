@@ -7,13 +7,13 @@
 
 //   chrome.runtime.sendMessage({ imageUrls });
 // });
+let rawContentBody 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (message.action) {
     case "manipulateDOM":
-      // Perform DOM manipulation on the active tab's content
-      // For example, change the background color of all paragraphs
-      const imgs = document.querySelectorAll('img');
-      imgs.forEach(img => {
+
+      const rawImgs = document.querySelectorAll('img');
+      rawImgs.forEach(img => {
         img.style.filter = "blur(20px)";
       });
       sendResponse({ success: true });
@@ -50,19 +50,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // let rawContentBody = document.body.innerHTML;
       // let imgs  = document.body.querySelectorAll('img')
       
-      //zera o dom
+      //zera o dom e salva dom antigo
       console.log("zerando dom");
-      let body =  document.body
-      if(body){
-        console.log("Encontrou body");
-      }
-      body.innerHTML = loadingInnerHTML
+      rawContentBody =  document.body.innerHTML
+      document.body.innerHTML = loadingInnerHTML
+
+      const imgs = rawContentBody.querySelectorAll('img')
+      imgs.forEach(img => {
+        img.style.filter = "blur(20px)";
+      });
+      
+      document.body.innerHTML = rawContentBody
+      
+      sendResponse({ success: true });
+
       // const body = document.querySelector('body');
       // body.insertAdjacentHTML('afterbegin', loadingInnerHTML);    
       // body.append('afterbegin', loadingInnerHTML);   
       // Insira o conteúdo no início do <body>
       // body.insertAdjacentHTML('afterbegin', loadingInnerHTML);
-      sendResponse({ success: true });
+
       break;
   
     default:
