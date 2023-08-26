@@ -10,6 +10,8 @@ port.onMessage.addListener(response => {
     console.log("Resposta do background script:", response.data);
 });
 
+let lastImagesCount = 0;
+
 function mountLoadingDOM() {
   try {
       // Create and add the warning message container
@@ -49,18 +51,52 @@ function mountLoadingDOM() {
 
       // Apply the blur to the images
       const imgs = document.querySelectorAll('img');
+      lastImagesCount = imgs.length;
       imgs.forEach(img => {
           img.style.filter = "blur(20px)";
       });
       setTimeout(()=> {
         document.body.removeChild(loadingContainer);
-
+        addingObserver(document.body)
       }, 2000)
       // Return a function to remove the changes
       return true
   } catch (error) {
       console.error(error);
       return null;
+  }
+}
+
+function addingObserver(htmlBodySelected){
+  try {
+    const observer = new MutationObserver((mutationsList, observer) => {
+      const imgsObservedCount = document.querySelectorAll('img').length;
+      if(lastImagesCount !== imgsObservedCount){
+        console.log("Quantidade de fotos alterou");
+        lastImagesCount = imgsObservedCount
+
+        //adiciona verificao adicional
+        const loadingContainer = document.createElement('div');
+        loadingContainer.className = 'phobia-container';
+        loadingContainer.innerHTML = `
+            <h1 class="phobia-title">Dectectamos novas imagens não processadas..</h1>
+        `;
+  
+        document.body.appendChild(loadingContainer);
+        // Apply the blur to the images
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(img => {
+            img.style.filter = "blur(20px)";
+        });
+        setTimeout(()=> {
+          document.body.removeChild(loadingContainer);
+        }, 2000)
+      }
+    });
+  
+    observer.observe(htmlBodySelected, { childList: true, subtree: true });
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -89,6 +125,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }, 1);
       }
       return true  
+    
+    // case "addingObserver":
+    //   if(addingObserver()){
+    //     setTimeout(function() {
+    //       sendResponse({status: true}); 
+    //     }, 1);
+    //   }else{
+    //     setTimeout(function() {
+    //       sendResponse({status: false});
+    //     }, 1);
+    //   }
+    //   return true
     default:
       return true
   }
