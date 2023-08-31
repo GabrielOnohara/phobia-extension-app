@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  width: calc(100vw - 15px);
 }
 
 .App-logo {
@@ -35,4 +36,32 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.App h1 {
+  color: #FFF;
+}
+
+.App p {
+  color: #FFF;
+  font-size: 1rem;
+}
+
+.App a {
+  color: #FFF;
+  font-size: 0.875rem;
+}
+
+.App ul {
+  margin-top: 30px;
+  padding: 5px 5px 5px 5px;
+  background-color: #FFF;
+  border-radius: 5px;
+}
+
+.App ul li{
+  margin: 5px 10px;
+  list-style-type: none;
+  display: flex;
+  justify-content: space-between;
 }

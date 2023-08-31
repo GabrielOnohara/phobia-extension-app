@@ -1,9 +1,8 @@
 /* global.css */
 
 body {
-    width: 350px;
-    height: 500px;
-    background-color: #ccc;
+    width: 300px;
+    background-color: #034078;
   }
   
   #root {
@@ -11,10 +10,8 @@ body {
   }
   
   .App {
-    font-family: "Roboto";
-    height: 100%;
-    background-color: #ccc;
-    overflow-y: scroll;
+    font-family: cursive;
+    background-color: #034078;
   }
   
   .container {
