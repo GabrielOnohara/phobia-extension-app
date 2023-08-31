@@ -20,6 +20,12 @@
         "matches": ["<all_urls>"],
         "js": ["contentScript.js"]
       }
-    ]
-  }
+    ],
+    "icons": {
+      "16":"logoemoji16x16.png",
+      "32":"logoemoji32x32.png",
+      "48":"logoemoji48x48.png",
+      "128":"logoemoji128x128.png"
+    }
+}
   
