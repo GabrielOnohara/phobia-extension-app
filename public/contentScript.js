@@ -11,6 +11,7 @@ port.onMessage.addListener(response => {
 });
 
 let lastImagesCount = 0;
+let lastImagesCountUnique = 0;
 
 function mountLoadingDOM() {
   try {
@@ -52,9 +53,26 @@ function mountLoadingDOM() {
       // Apply the blur to the images
       const imgs = document.querySelectorAll('img');
       lastImagesCount = imgs.length;
+
+      let imgsData = {
+        uniqueImageUrls: []
+      }
+      let imageUrls = []
       imgs.forEach(img => {
-          img.style.filter = "blur(20px)";
+          // img.style.filter = "blur(20px)";
+          // if(!imageUrls.includes(img.src)){
+            
+          // }
+          imageUrls.push(img.src)
       });
+      
+      imgsData.uniqueImageUrls = [...new Set(imageUrls)];
+      lastImagesCountUnique = imgsData.uniqueImageUrls.length
+      postImgs("http://localhost:5000/", imgsData)
+      // .then((data) => {
+      //   console.log(data); // JSON data parsed by `data.json()` call
+      // });
+
       setTimeout(()=> {
         document.body.removeChild(loadingContainer);
         addingObserver(document.body)
@@ -67,6 +85,7 @@ function mountLoadingDOM() {
   }
 }
 
+//funcao que adiciona observer
 function addingObserver(htmlBodySelected){
   try {
     const observer = new MutationObserver((mutationsList, observer) => {
@@ -85,9 +104,25 @@ function addingObserver(htmlBodySelected){
         document.body.appendChild(loadingContainer);
         // Apply the blur to the images
         const imgs = document.querySelectorAll('img');
+
+        let imgsData = {
+          uniqueImageUrls: []
+        }
+        let imageUrls = []
         imgs.forEach(img => {
-            img.style.filter = "blur(20px)";
+            // img.style.filter = "blur(20px)";
+            if(!imageUrls.includes(img.src)){
+              imageUrls.push(img.src)
+            }
         });
+        
+        let uniqueImageUrls = [...new Set(imageUrls)]
+        imgsData.uniqueImageUrls = uniqueImageUrls.slice(lastImagesCountUnique)
+        lastImagesCountUnique = imgsData.uniqueImageUrls.length
+        postImgs("http://localhost:5000/", imgsData)
+        // .then((data) => {
+        //   console.log(data); // JSON data parsed by `data.json()` call
+        // });
         setTimeout(()=> {
           document.body.removeChild(loadingContainer);
         }, 2000)
@@ -98,6 +133,29 @@ function addingObserver(htmlBodySelected){
   } catch (error) {
     console.log(error);
   }
+}
+
+async function postImgs(url = "", data = {}) {
+
+  console.log("Fazendo requisicao");
+  console.log(data);
+  console.log(lastImagesCount);
+
+  // Default options are marked with *
+  // const response = await fetch(url, {
+  //   method: "POST", // *GET, POST, PUT, DELETE, etc.
+  //   // mode: "cors", // no-cors, *cors, same-origin
+  //   // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+  //   // credentials: "same-origin", // include, *same-origin, omit
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     // 'Content-Type': 'application/x-www-form-urlencoded',
+  //   },
+  //   // redirect: "follow", // manual, *follow, error
+  //   // referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+  //   body: JSON.stringify(data), // body data type must match "Content-Type" header
+  // });
+  // return response.json(); // parses JSON response into native JavaScript objects
 }
 
 //funcao que ouve as mensagens e aplica a funcao de acordo com seus conteúdos
