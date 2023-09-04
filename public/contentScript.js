@@ -11,6 +11,7 @@ port.onMessage.addListener(response => {
 });
 
 let lastImagesCount = 0;
+let lastImagesCountUnique = 0;
 
 function mountLoadingDOM() {
   try {
@@ -54,19 +55,24 @@ function mountLoadingDOM() {
       lastImagesCount = imgs.length;
 
       let imgsData = {
-        imageUrls: []
+        uniqueImageUrls: []
       }
+      let imageUrls = []
       imgs.forEach(img => {
           // img.style.filter = "blur(20px)";
-          imgsData.imgageUrls.push(img.src)
+          // if(!imageUrls.includes(img.src)){
+            
+          // }
+          imageUrls.push(img.src)
       });
       
-      postImgs("http://localhost:3000/", imgsData)
+      imgsData.uniqueImageUrls = [...new Set(imageUrls)];
+      lastImagesCountUnique = imgsData.uniqueImageUrls.length
+      postImgs("http://localhost:5000/", imgsData)
       // .then((data) => {
       //   console.log(data); // JSON data parsed by `data.json()` call
       // });
 
-      console.log();
       setTimeout(()=> {
         document.body.removeChild(loadingContainer);
         addingObserver(document.body)
@@ -98,9 +104,25 @@ function addingObserver(htmlBodySelected){
         document.body.appendChild(loadingContainer);
         // Apply the blur to the images
         const imgs = document.querySelectorAll('img');
+
+        let imgsData = {
+          uniqueImageUrls: []
+        }
+        let imageUrls = []
         imgs.forEach(img => {
-            img.style.filter = "blur(20px)";
+            // img.style.filter = "blur(20px)";
+            if(!imageUrls.includes(img.src)){
+              imageUrls.push(img.src)
+            }
         });
+        
+        let uniqueImageUrls = [...new Set(imageUrls)]
+        imgsData.uniqueImageUrls = uniqueImageUrls.slice(lastImagesCountUnique)
+        lastImagesCountUnique = imgsData.uniqueImageUrls.length
+        postImgs("http://localhost:5000/", imgsData)
+        // .then((data) => {
+        //   console.log(data); // JSON data parsed by `data.json()` call
+        // });
         setTimeout(()=> {
           document.body.removeChild(loadingContainer);
         }, 2000)
@@ -116,6 +138,9 @@ function addingObserver(htmlBodySelected){
 async function postImgs(url = "", data = {}) {
 
   console.log("Fazendo requisicao");
+  console.log(data);
+  console.log(lastImagesCount);
+
   // Default options are marked with *
   // const response = await fetch(url, {
   //   method: "POST", // *GET, POST, PUT, DELETE, etc.
