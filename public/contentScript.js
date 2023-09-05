@@ -90,7 +90,7 @@ function addingObserver(htmlBodySelected){
   try {
     const observer = new MutationObserver((mutationsList, observer) => {
       const imgsObservedCount = document.querySelectorAll('img').length;
-      if(lastImagesCount !== imgsObservedCount){
+      if(lastImagesCount < imgsObservedCount){
         console.log("Quantidade de fotos alterou");
         lastImagesCount = imgsObservedCount
 
