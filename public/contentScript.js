@@ -62,20 +62,48 @@ function mountLoadingDOM() {
             // if(!imageUrls.includes(img.src)){
 
             // }
-            imageUrls.push(img.src);
+            if (!imageUrls.includes(img.src)) {
+              if (img.src.substring(0, 5) === 'https' || img.src.substring(0, 5) === 'http') {
+                imageUrls.push(img.src);
+              }
+            }
         });
 
         imgsData.uniqueImageUrls = [...new Set(imageUrls)];
         lastImagesCountUnique = imgsData.uniqueImageUrls.length;
-        postImgs("http://localhost:5000/detect_spider", imgsData);
-        // .then((data) => {
-        //   console.log(data); // JSON data parsed by `data.json()` call
-        // });
-
-        setTimeout(() => {
+        postImgs("http://localhost:5000/detect_spider", imgsData)
+        .then(
+          (data) => {
+            let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+            imgsScoresKey.forEach((item)=> {
+              console.log(item.score);
+              console.log(item.url);
+              if(item?.score >= 0.70){
+                console.log("Bateu score fst");
+                document.querySelectorAll("img").forEach((img) => {
+                  if (img.src === item?.url) {
+                    console.log("Entrou filtro");
+                    img.style.filter = "blur(6px)";
+                  }
+              });
+              }
+            })
+            // setTimeout(() => {
+            //     document.body.removeChild(loadingContainer);
+            //     addingObserver(document.body);
+            // }, 2000);
             document.body.removeChild(loadingContainer);
             addingObserver(document.body);
-        }, 2000);
+          }
+      ).catch(() => {
+        document.body.removeChild(loadingContainer);
+        addingObserver(document.body);
+      })
+
+        // setTimeout(() => {
+        //     document.body.removeChild(loadingContainer);
+        //     addingObserver(document.body);
+        // }, 2000);
         // Return a function to remove the changes
         return true;
     } catch (error) {
@@ -97,8 +125,8 @@ function addingObserver(htmlBodySelected) {
                 const loadingContainer = document.createElement("div");
                 loadingContainer.className = "phobia-container";
                 loadingContainer.innerHTML = `
-            <h1 class="phobia-title">Dectectamos novas imagens não processadas..</h1>
-        `;
+                <h1 class="phobia-title">Dectectamos novas imagens não processadas..</h1>
+                `;
 
                 document.body.appendChild(loadingContainer);
                 // Apply the blur to the images
@@ -111,7 +139,9 @@ function addingObserver(htmlBodySelected) {
                 imgs.forEach((img) => {
                     // img.style.filter = "blur(20px)";
                     if (!imageUrls.includes(img.src)) {
+                      if (img.src.substring(0, 5) === 'https' || img.src.substring(0, 5) === 'http') {
                         imageUrls.push(img.src);
+                      }
                     }
                 });
 
@@ -123,14 +153,33 @@ function addingObserver(htmlBodySelected) {
                 postImgs(
                     "http://localhost:5000/detect_spider",
                     imgsData
-                ); /* .then(
+                )
+                .then(
                     (data) => {
-                        console.log(data); // JSON data parsed by `data.json()` call
+                      let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+                      imgsScoresKey.forEach((item)=> {
+                        console.log(item.score);
+                        console.log(item.url);
+                        if(item?.score >= 0.70){
+                          console.log("Bateu score obs");
+                          document.querySelectorAll("img").forEach((img) => {
+                            if (img.src === item?.url) {
+                              console.log("Entrou filtro");
+                              img.style.filter = "blur(6px)";
+                            }
+                        });
+                        }
+                      })
+                      // setTimeout(() => {
+                      //   document.body.removeChild(loadingContainer);
+                      // }, 2000);
+                      document.body.removeChild(loadingContainer);
                     }
-                ); */
-                setTimeout(() => {
-                    document.body.removeChild(loadingContainer);
-                }, 2000);
+                    
+                ).catch(() => {
+                  document.body.removeChild(loadingContainer);
+                })
+
             }
         });
 
@@ -146,7 +195,8 @@ async function postImgs(url = "", data = {}) {
     console.log(lastImagesCount);
 
     // Default options are marked with *
-    const response = await fetch(url, {
+    try {
+      const response = await fetch(url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
         // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -158,9 +208,15 @@ async function postImgs(url = "", data = {}) {
         // redirect: "follow", // manual, *follow, error
         // referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: JSON.stringify(data), // body data type must match "Content-Type" header
-    }).then((response) => {
-        console.log(response.json());
     });
+    const json = await response.json();
+    console.log(json);
+    return json
+    } catch (error) {
+      console.log(error);
+    } finally {
+
+    }
     /* const json = await response.json();
     console.log(json);
     return json; // parses JSON response into native JavaScript objects */
