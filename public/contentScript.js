@@ -11,6 +11,11 @@ port.onMessage.addListener((response) => {
 
 let lastImagesCount = 0;
 let lastImagesCountUnique = 0;
+let phobias = {
+  aracnofobia: true,
+  tripofobia: true,
+  coulrofobia: true,
+}
 
 function mountLoadingDOM() {
     try {
@@ -247,6 +252,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
             return true;
 
+        case "phobiaOptionsChanged":
+          try {
+            phobias = message.phobias
+            setTimeout(function () {
+              sendResponse({ status: true });
+          }, 1);
+          } catch (error) {
+            setTimeout(function () {
+              sendResponse({ status: false });
+          }, 1);
+          }
+          return true;
         // case "addingObserver":
         //   if(addingObserver()){
         //     setTimeout(function() {
