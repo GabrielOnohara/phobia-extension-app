@@ -12,10 +12,10 @@ port.onMessage.addListener((response) => {
 let lastImagesCount = 0;
 let lastImagesCountUnique = 0;
 let phobias = {
-  aracnofobia: true,
-  tripofobia: true,
-  coulrofobia: true,
-}
+    aracnofobia: true,
+    tripofobia: true,
+    coulrofobia: true,
+};
 
 function mountLoadingDOM() {
     try {
@@ -23,7 +23,8 @@ function mountLoadingDOM() {
         const loadingContainer = document.createElement("div");
         loadingContainer.className = "phobia-container";
         loadingContainer.innerHTML = `
-          <h1 class="phobia-title">Verificando imagens sensíveis..</h1>
+          <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+          <div class="inside-logo">😱</div>
       `;
 
         document.body.appendChild(loadingContainer);
@@ -32,9 +33,9 @@ function mountLoadingDOM() {
         const styleElement = document.createElement("style");
         styleElement.textContent = `
         .phobia-container {
-          min-height: 100vh; 
-          min-width: 100vw;
-          background: #6C7A89;
+          min-height: 20vh; 
+          min-width: 20vh;
+          /* background: #6C7A89; */
           display: flex;
           flex-direction: row;
           justify-content: center;
@@ -43,13 +44,54 @@ function mountLoadingDOM() {
           font-style: normal;
           z-index: 999999999999999999999999;
           position: fixed;
-          top: 0;
-          left: 0;
+          right: 0;
+          bottom: 0;
         }
         .phobia-title {
           font-size: 32px;
           color: #fff;
           text-align: center
+        }
+        .inside-logo {
+          position: fixed;
+          font-size: 4.5vh;
+          right: 4vh;
+          bottom: 4.5vh;
+        }
+        .lds-ring {
+          display: inline-block;
+          position: relative;
+          width: 20vh;
+          height: 20vh;
+        }
+        .lds-ring div {
+          box-sizing: border-box;
+          display: block;
+          position: absolute;
+          width: 10vh;
+          height: 10vh;
+          margin: 8vh;
+          border: 8px solid #e09c2a;
+          border-radius: 50%;
+          animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+          border-color: #e09c2a transparent transparent transparent;
+        }
+        .lds-ring div:nth-child(1) {
+          animation-delay: -0.45s;
+        }
+        .lds-ring div:nth-child(2) {
+          animation-delay: -0.3s;
+        }
+        .lds-ring div:nth-child(3) {
+          animation-delay: -0.15s;
+        }
+        @keyframes lds-ring {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
       `;
         document.head.appendChild(styleElement);
@@ -68,42 +110,44 @@ function mountLoadingDOM() {
 
             // }
             if (!imageUrls.includes(img.src)) {
-              if (img.src.substring(0, 5) === 'https' || img.src.substring(0, 5) === 'http') {
-                imageUrls.push(img.src);
-              }
+                if (
+                    img.src.substring(0, 5) === "https" ||
+                    img.src.substring(0, 5) === "http"
+                ) {
+                    imageUrls.push(img.src);
+                }
             }
         });
 
         imgsData.uniqueImageUrls = [...new Set(imageUrls)];
         lastImagesCountUnique = imgsData.uniqueImageUrls.length;
         postImgs("http://localhost:5000/detect_spider", imgsData)
-        .then(
-          (data) => {
-            let imgsScoresKey = data; // JSON data parsed by `data.json()` call
-            imgsScoresKey.forEach((item)=> {
-              console.log(item.score);
-              console.log(item.url);
-              if(item?.score >= 0.70){
-                console.log("Bateu score fst");
-                document.querySelectorAll("img").forEach((img) => {
-                  if (img.src === item?.url) {
-                    console.log("Entrou filtro");
-                    img.style.filter = "blur(6px)";
-                  }
-              });
-              }
+            .then((data) => {
+                let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+                imgsScoresKey.forEach((item) => {
+                    console.log(item.score);
+                    console.log(item.url);
+                    if (item?.score >= 0.7) {
+                        console.log("Bateu score fst");
+                        document.querySelectorAll("img").forEach((img) => {
+                            if (img.src === item?.url) {
+                                console.log("Entrou filtro");
+                                img.style.filter = "blur(6px)";
+                            }
+                        });
+                    }
+                });
+                // setTimeout(() => {
+                //     document.body.removeChild(loadingContainer);
+                //     addingObserver(document.body);
+                // }, 2000);
+                document.body.removeChild(loadingContainer);
+                addingObserver(document.body);
             })
-            // setTimeout(() => {
-            //     document.body.removeChild(loadingContainer);
-            //     addingObserver(document.body);
-            // }, 2000);
-            document.body.removeChild(loadingContainer);
-            addingObserver(document.body);
-          }
-      ).catch(() => {
-        document.body.removeChild(loadingContainer);
-        addingObserver(document.body);
-      })
+            .catch(() => {
+                document.body.removeChild(loadingContainer);
+                addingObserver(document.body);
+            });
 
         // setTimeout(() => {
         //     document.body.removeChild(loadingContainer);
@@ -130,7 +174,7 @@ function addingObserver(htmlBodySelected) {
                 const loadingContainer = document.createElement("div");
                 loadingContainer.className = "phobia-container";
                 loadingContainer.innerHTML = `
-                <h1 class="phobia-title">Dectectamos novas imagens não processadas..</h1>
+                  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
                 `;
 
                 document.body.appendChild(loadingContainer);
@@ -144,9 +188,12 @@ function addingObserver(htmlBodySelected) {
                 imgs.forEach((img) => {
                     // img.style.filter = "blur(20px)";
                     if (!imageUrls.includes(img.src)) {
-                      if (img.src.substring(0, 5) === 'https' || img.src.substring(0, 5) === 'http') {
-                        imageUrls.push(img.src);
-                      }
+                        if (
+                            img.src.substring(0, 5) === "https" ||
+                            img.src.substring(0, 5) === "http"
+                        ) {
+                            imageUrls.push(img.src);
+                        }
                     }
                 });
 
@@ -155,36 +202,32 @@ function addingObserver(htmlBodySelected) {
                     lastImagesCountUnique
                 );
                 lastImagesCountUnique = imgsData.uniqueImageUrls.length;
-                postImgs(
-                    "http://localhost:5000/detect_spider",
-                    imgsData
-                )
-                .then(
-                    (data) => {
-                      let imgsScoresKey = data; // JSON data parsed by `data.json()` call
-                      imgsScoresKey.forEach((item)=> {
-                        console.log(item.score);
-                        console.log(item.url);
-                        if(item?.score >= 0.70){
-                          console.log("Bateu score obs");
-                          document.querySelectorAll("img").forEach((img) => {
-                            if (img.src === item?.url) {
-                              console.log("Entrou filtro");
-                              img.style.filter = "blur(6px)";
+                postImgs("http://localhost:5000/detect_spider", imgsData)
+                    .then((data) => {
+                        let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+                        imgsScoresKey.forEach((item) => {
+                            console.log(item.score);
+                            console.log(item.url);
+                            if (item?.score >= 0.7) {
+                                console.log("Bateu score obs");
+                                document
+                                    .querySelectorAll("img")
+                                    .forEach((img) => {
+                                        if (img.src === item?.url) {
+                                            console.log("Entrou filtro");
+                                            img.style.filter = "blur(6px)";
+                                        }
+                                    });
                             }
                         });
-                        }
-                      })
-                      // setTimeout(() => {
-                      //   document.body.removeChild(loadingContainer);
-                      // }, 2000);
-                      document.body.removeChild(loadingContainer);
-                    }
-                    
-                ).catch(() => {
-                  document.body.removeChild(loadingContainer);
-                })
-
+                        // setTimeout(() => {
+                        //   document.body.removeChild(loadingContainer);
+                        // }, 2000);
+                        document.body.removeChild(loadingContainer);
+                    })
+                    .catch(() => {
+                        document.body.removeChild(loadingContainer);
+                    });
             }
         });
 
@@ -201,26 +244,25 @@ async function postImgs(url = "", data = {}) {
 
     // Default options are marked with *
     try {
-      const response = await fetch(url, {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        mode: "cors", // no-cors, *cors, same-origin
-        // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        // credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-            "Content-Type": "text/plain",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        // redirect: "follow", // manual, *follow, error
-        // referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(data), // body data type must match "Content-Type" header
-    });
-    const json = await response.json();
-    console.log(json);
-    return json
+        const response = await fetch(url, {
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors", // no-cors, *cors, same-origin
+            // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            // credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+                "Content-Type": "text/plain",
+                // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            // redirect: "follow", // manual, *follow, error
+            // referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(data), // body data type must match "Content-Type" header
+        });
+        const json = await response.json();
+        console.log(json);
+        return json;
     } catch (error) {
-      console.log(error);
+        console.log(error);
     } finally {
-
     }
     /* const json = await response.json();
     console.log(json);
@@ -253,17 +295,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return true;
 
         case "phobiaOptionsChanged":
-          try {
-            phobias = message.phobias
-            setTimeout(function () {
-              sendResponse({ status: true });
-          }, 1);
-          } catch (error) {
-            setTimeout(function () {
-              sendResponse({ status: false });
-          }, 1);
-          }
-          return true;
+            try {
+                phobias = message.phobias;
+                setTimeout(function () {
+                    sendResponse({ status: true });
+                }, 1);
+            } catch (error) {
+                setTimeout(function () {
+                    sendResponse({ status: false });
+                }, 1);
+            }
+            return true;
         // case "addingObserver":
         //   if(addingObserver()){
         //     setTimeout(function() {
