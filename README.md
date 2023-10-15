@@ -30,3 +30,31 @@ This command will build the entire extension project, the background, content an
 To use this extension locally, you have to load the project directory in chrome web extension store after runs run build. You just have to enable developer mode, to allow store accept your own local project.
 
 ![image](https://github.com/GabrielOnohara/phobia-extension-app/assets/64387740/c9890488-c466-4251-9b97-d980e9232dc4)
+
+
+## Extensions code summary
+
+### Manifest.json
+
+Extensions code starts with the manifest file that will set up all the permitions and funcionalities.
+After setting up the manifest.json, you can see the chrome officical documentation to explore a lot of tools to your app.
+
+Open [Google Chrome Tabs Official documentation.](https://developer.chrome.com/docs/extensions/).
+
+### Files
+
+The extensions work with three sorts of file.
+
+#### Content file
+
+This filetype will deal with each content html data. All content processing code must be writted in this file.
+
+#### Background file
+
+This filetype will runs parallel to the browser window. It serves to communicate between other files, because it will be enable all time to handle with tabs messages, internal logical verifications and another type of control funcionality
+
+#### Popup file
+ This file type will represent the main extension page, that displays when we click in the extension icon, on the top in browser tools.
+It serves to a lot of funcionalities, but the principal objective is to be the extension visual panel.
+
+
