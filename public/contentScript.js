@@ -175,6 +175,7 @@ function addingObserver(htmlBodySelected) {
                 loadingContainer.className = "phobia-container";
                 loadingContainer.innerHTML = `
                   <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+                  <div class="inside-logo">😱</div>
                 `;
 
                 document.body.appendChild(loadingContainer);
