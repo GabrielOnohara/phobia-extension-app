@@ -53,45 +53,53 @@ function mountLoadingDOM() {
           text-align: center
         }
         .inside-logo {
-          position: fixed;
-          font-size: 4.5vh;
-          right: 4vh;
-          bottom: 4.5vh;
-        }
+            all: initial;
+            position: fixed;
+            font-size: 4.5vh;
+            right: 4vh;
+            bottom: 4.5vh;
+          }
         .lds-ring {
-          display: inline-block;
-          position: relative;
-          width: 20vh;
-          height: 20vh;
+            all: initial;
+            display: inline-block;
+            position: relative;
+            width: 20vh;
+            height: 20vh;
         }
         .lds-ring div {
-          box-sizing: border-box;
-          display: block;
-          position: absolute;
-          width: 10vh;
-          height: 10vh;
-          margin: 8vh;
-          border: 8px solid #e09c2a;
-          border-radius: 50%;
-          animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-          border-color: #e09c2a transparent transparent transparent;
+            all: initial;
+            box-sizing: border-box;
+            display: block;
+            position: absolute;
+            width: 10vh;
+            height: 10vh;
+            margin: 8vh;
+            border: 8px solid #e09c2a;
+            border-radius: 50%;
+            animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            border-color: #e09c2a transparent transparent transparent;
         }
         .lds-ring div:nth-child(1) {
-          animation-delay: -0.45s;
+            all: initial;
+            animation-delay: -0.45s;
         }
         .lds-ring div:nth-child(2) {
-          animation-delay: -0.3s;
+            all: initial;
+            animation-delay: -0.3s;
         }
         .lds-ring div:nth-child(3) {
-          animation-delay: -0.15s;
+            all: initial;
+            animation-delay: -0.15s;
         }
         @keyframes lds-ring {
-          0% {
+        0% {
+            all: initial;
             transform: rotate(0deg);
-          }
-          100% {
+        }
+        100% {
+            all: initial;
             transform: rotate(360deg);
-          }
+        }
         }
       `;
         document.head.appendChild(styleElement);
