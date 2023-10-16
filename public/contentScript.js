@@ -107,7 +107,7 @@ function mountLoadingDOM() {
         imgs.forEach((img) => {
             // img.style.filter = "blur(20px)";
             // if(!imageUrls.includes(img.src)){
-
+            img.style.filter = "blur(10px)";
             // }
             if (!imageUrls.includes(img.src)) {
                 if (
@@ -127,12 +127,12 @@ function mountLoadingDOM() {
                 imgsScoresKey.forEach((item) => {
                     console.log(item.score);
                     console.log(item.url);
-                    if (item?.score >= 0.7) {
+                    if (item?.score <= 0.7) {
                         console.log("Bateu score fst");
                         document.querySelectorAll("img").forEach((img) => {
                             if (img.src === item?.url) {
                                 console.log("Entrou filtro");
-                                img.style.filter = "blur(6px)";
+                                img.style.filter = "initial";
                             }
                         });
                     }
@@ -187,6 +187,7 @@ function addingObserver(htmlBodySelected) {
                 };
                 let imageUrls = [];
                 imgs.forEach((img) => {
+                    img.style.filter = "blur(10px)";
                     // img.style.filter = "blur(20px)";
                     if (!imageUrls.includes(img.src)) {
                         if (
@@ -209,14 +210,14 @@ function addingObserver(htmlBodySelected) {
                         imgsScoresKey.forEach((item) => {
                             console.log(item.score);
                             console.log(item.url);
-                            if (item?.score >= 0.7) {
+                            if (item?.score <= 0.7) {
                                 console.log("Bateu score obs");
                                 document
                                     .querySelectorAll("img")
                                     .forEach((img) => {
                                         if (img.src === item?.url) {
                                             console.log("Entrou filtro");
-                                            img.style.filter = "blur(6px)";
+                                            img.style.filter = "initial";
                                         }
                                     });
                             }
