@@ -87,7 +87,6 @@ chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
               return;
             }else{
               if (response?.status) {
-                console.log('mountLoadingDOM successful');
                 informationControlObject.tabs[tabId.toString()].processed = true
               }
             }
@@ -117,7 +116,6 @@ chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
 // Listener que funciona quando clicamos para abrir a tab
 chrome.tabs.onActivated.addListener(
 ({tabId, windowId})  =>  {
-  console.log("OnActivated");
   // console.log('Tab ID activated:', tabId);
   // console.log('Window ID activated:', windowId);
 
@@ -140,7 +138,6 @@ chrome.tabs.onActivated.addListener(
         }     
         //verifica se a url ja foi processada
         if(informationControlObject.tabs[tabId.toString()]?.url !== undefined && !informationControlObject.tabs[tabId.toString()].processed){
-          console.log("tab will be processed")
           //verifica conexao com content script
           if(informationControlObject.contentScriptWasSetted){
             chrome.tabs.sendMessage(tabId, { action: 'mountLoadingDOM' }, response => {
@@ -149,7 +146,6 @@ chrome.tabs.onActivated.addListener(
                 return;
               }else{
                 if (response?.status) {
-                  console.log('mountLoadingDOM successful');
                   informationControlObject.tabs[tabId.toString()].processed = true
                 }
               }
@@ -171,7 +167,6 @@ chrome.tabs.onActivated.addListener(
 //Listener que funciona quando fechamos  a tab
 chrome.tabs.onRemoved.addListener(
   (tabId, {isWindowClosing, windowId}) => {
-    console.log("OnRemoved");
     // console.log('Tab Id  removed:', tabId);
     // console.log('Window Id removed:', windowId);
     // console.log('Window is Closing removed:', isWindowClosing);
