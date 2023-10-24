@@ -19,13 +19,13 @@ def detect(src):
     print(response.status_code)
     if (response.status_code == 200):  # 200 status OK
         try:
-            print("IMAGEM")
+            print("---IMAGEM---")
             im = Image.open(response.raw)  # to work with every image format
-            print("FIM IMAGEM")
+            print("---FIM IMAGEM---")
 
-            print("YOLO")
+            print("---YOLO---")
             results = model(im)[0]
-            print("FIM YOLO")
+            print("---FIM YOLO---")
 
             scoreList = []
             for result in results.boxes.data.tolist():
@@ -33,7 +33,7 @@ def detect(src):
                 scoreList.append(score)
             return scoreList
         except:
-            return [-1.0]
+            return [-2.0]
     else:  # caso falhe
         return [-1.0]
 
