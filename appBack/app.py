@@ -69,13 +69,3 @@ def hello_world():
         except Exception as e:
             # Lidar com erros de análise JSON ou outros erros
             return jsonify({"error": str(e)}), 400
-
-
-@app.route("/test", methods=['POST'])
-def test():
-    if request.headers['Content-Type'] == 'text/plain':
-        try:
-            return jsonify({'responde': 'test'})
-        except Exception as e:
-            # Lidar com erros de análise JSON ou outros erros
-            return jsonify({"error": str(e)}), 400

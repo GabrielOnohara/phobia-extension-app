@@ -8,7 +8,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
-The project is divided into front-end (appFront) and back-end (appBack). Inside then you can run:
+The project is divided into front-end (appFront) and back-end (appBack). Inside them you can run:
 
 ### appFront
 
