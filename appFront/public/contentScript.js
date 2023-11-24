@@ -176,7 +176,6 @@ function addingObserver(htmlBodySelected) {
             const imgsObservedCount = document.querySelectorAll("img").length;
             if (lastImagesCount < imgsObservedCount) {
                 console.log("Quantidade de fotos alterou");
-                lastImagesCount = imgsObservedCount;
 
                 //adiciona verificao adicional
                 const loadingContainer = document.createElement("div");
@@ -188,13 +187,16 @@ function addingObserver(htmlBodySelected) {
 
                 document.body.appendChild(loadingContainer);
                 // Apply the blur to the images
-                const imgs = document.querySelectorAll("img");
+                const allImgs = document.querySelectorAll("img");
+                const imgArray = Array.from(allImgs);
+                let newImgs = imgArray.slice(lastImagesCount);
+                lastImagesCount = imgsObservedCount;
 
                 let imgsData = {
                     uniqueImageUrls: [],
                 };
                 let imageUrls = [];
-                imgs.forEach((img) => {
+                newImgs.forEach((img) => {
                     img.style.filter = "blur(10px)";
                     // img.style.filter = "blur(20px)";
                     if (!imageUrls.includes(img.src)) {
@@ -208,10 +210,11 @@ function addingObserver(htmlBodySelected) {
                 });
 
                 let uniqueImageUrls = [...new Set(imageUrls)];
-                imgsData.uniqueImageUrls = uniqueImageUrls.slice(
+                imgsData.uniqueImageUrls = uniqueImageUrls.slice(0,
                     lastImagesCountUnique
                 );
                 lastImagesCountUnique = imgsData.uniqueImageUrls.length;
+
                 postImgs("http://localhost:5000/detect_spider", imgsData)
                     .then((data) => {
                         let imgsScoresKey = data; // JSON data parsed by `data.json()` call
@@ -220,8 +223,7 @@ function addingObserver(htmlBodySelected) {
                             console.log(item.url);
                             if (item?.score <= 0.7) {
                                 console.log("Bateu score obs");
-                                document
-                                    .querySelectorAll("img")
+                                newImgs
                                     .forEach((img) => {
                                         if (img.src === item?.url) {
                                             console.log("Entrou filtro");
