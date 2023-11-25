@@ -136,10 +136,8 @@ function mountLoadingDOM() {
                     console.log(item.score);
                     console.log(item.url);
                     if (item?.score <= 0.7) {
-                        console.log("Bateu score fst");
                         document.querySelectorAll("img").forEach((img) => {
                             if (img.src === item?.url) {
-                                console.log("Entrou filtro");
                                 img.style.filter = "initial";
                             }
                         });
@@ -250,10 +248,6 @@ function addingObserver(htmlBodySelected) {
 }
 
 async function postImgs(url = "", data = {}) {
-    console.log("Fazendo requisicao");
-    console.log(data);
-    console.log(lastImagesCount);
-
     // Default options are marked with *
     try {
         const response = await fetch(url, {
@@ -270,7 +264,6 @@ async function postImgs(url = "", data = {}) {
             body: JSON.stringify(data), // body data type must match "Content-Type" header
         });
         const json = await response.json();
-        console.log(json);
         return json;
     } catch (error) {
         console.log(error);
