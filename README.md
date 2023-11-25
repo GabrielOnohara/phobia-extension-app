@@ -8,9 +8,17 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
-In the project directory, you can run:
+The project is divided into front-end (appFront) and back-end (appBack). Inside them you can run:
 
-### `npm start`
+### appFront
+
+On the root folder, run:
+
+```console
+cd appFrond
+```
+
+#### `npm start`
 
 Runs the app in the development mode.\
 This command will shows the chrome popup jsx page.
@@ -18,7 +26,7 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 ![image](https://github.com/GabrielOnohara/phobia-extension-app/assets/64387740/baab394f-ced2-4981-a27c-94d52f5d2acb)
 
-### `npm run build`
+#### `npm run build`
 
 Builds the app for production to the `build` folder.\
 It correctly bundles React in production mode and optimizes the build for the best performance.
@@ -31,6 +39,17 @@ To use this extension locally, you have to load the project directory in chrome 
 
 ![image](https://github.com/GabrielOnohara/phobia-extension-app/assets/64387740/c9890488-c466-4251-9b97-d980e9232dc4)
 
+### appBack
+
+On the root folder, run:
+
+```console
+cd appBack
+```
+
+#### flask --app .\app.py run
+
+Runs the Flask application, which receives the image links through a JSON and processes each one with a YOLOv8 model.
 
 ## Extensions code summary
 
@@ -54,7 +73,6 @@ This filetype will deal with each content html data. All content processing code
 This filetype will runs parallel to the browser window. It serves to communicate between other files, because it will be enable all time to handle with tabs messages, internal logical verifications and another type of control funcionality
 
 #### Popup file
- This file type will represent the main extension page, that displays when we click in the extension icon, on the top in browser tools.
+
+This file type will represent the main extension page, that displays when we click in the extension icon, on the top in browser tools.
 It serves to a lot of funcionalities, but the principal objective is to be the extension visual panel.
-
-
