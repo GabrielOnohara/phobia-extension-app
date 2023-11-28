@@ -135,7 +135,7 @@ function mountLoadingDOM() {
                 imgsScoresKey.forEach((item) => {
                     console.log(item.score);
                     console.log(item.url);
-                    if (item?.score <= 0.7) {
+                    if (item?.score <= 0.6) {
                         document.querySelectorAll("img").forEach((img) => {
                             if (img.src === item?.url) {
                                 img.style.filter = "initial";
@@ -219,7 +219,7 @@ function addingObserver(htmlBodySelected) {
                         imgsScoresKey.forEach((item) => {
                             console.log(item.score);
                             console.log(item.url);
-                            if (item?.score <= 0.7) {
+                            if (item?.score <= 0.6) {
                                 console.log("Bateu score obs");
                                 newImgs
                                     .forEach((img) => {
