@@ -22,7 +22,6 @@ function App() {
   // }, []);
 
   const [aracnofobia, setAracnofobia] = React.useState(true)
-  const [tripofobia, setTripofobia] = React.useState(true)
   const [ofidiofobia, setOfidiofobia] = React.useState(true)
 
   const toggleAracnofobia = () => {
@@ -30,7 +29,6 @@ function App() {
       phobiaOptionsChanged(
         {
           aracnofobia: !oldValue,
-          tripofobia: tripofobia,
           ofidiofobia: ofidiofobia,
         }
       )
@@ -40,27 +38,11 @@ function App() {
     console.log("Toggle Aracnofobia");
   }
 
-  const toggleTripofobia = () => {
-    setTripofobia(oldValue => {
-      phobiaOptionsChanged(
-        {
-          aracnofobia: aracnofobia,
-          tripofobia: !oldValue,
-          ofidiofobia: ofidiofobia,
-        }
-      )
-      return !oldValue
-    })
-    console.log("Toggle Tripofobia");
-
-  }
-
   const toggleOfidiofobia = () => {
     setOfidiofobia(oldValue => {
       phobiaOptionsChanged(
         {
           aracnofobia: aracnofobia,
-          tripofobia: tripofobia,
           ofidiofobia: !oldValue,
         }
       )
@@ -90,14 +72,6 @@ function App() {
           {
             <Toggle checked={aracnofobia}
               onChange={toggleAracnofobia}
-            />
-          }
-        </li>
-        <li>
-        <h3>Tripofobia</h3> 
-          {
-            <Toggle checked={tripofobia}
-              onChange={toggleTripofobia}
             />
           }
         </li>
