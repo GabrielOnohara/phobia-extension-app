@@ -13,7 +13,7 @@ let lastImagesCount = 0;
 let lastImagesCountUnique = 0;
 //Ainda precisamos criar a logica para pegar as fobias
 
-function mountLoadingDOM() {
+function mountLoadingDOM(phobias) {
     try {
         // Create and add the warning message container
         const loadingContainer = document.createElement("div");
@@ -106,6 +106,7 @@ function mountLoadingDOM() {
 
         let imgsData = {
             uniqueImageUrls: [],
+            phobias: phobias,
         };
         let imageUrls = [];
         imgs.forEach((img) => {
@@ -170,7 +171,7 @@ function addingObserver(htmlBodySelected) {
             const imgsObservedCount = document.querySelectorAll("img").length;
             if (lastImagesCount < imgsObservedCount) {
                 console.log("Quantidade de fotos alterou");
-
+                
                 //adiciona verificao adicional
                 const loadingContainer = document.createElement("div");
                 loadingContainer.className = "phobia-container";
@@ -185,9 +186,19 @@ function addingObserver(htmlBodySelected) {
                 const imgArray = Array.from(allImgs);
                 let newImgs = imgArray.slice(lastImagesCount);
                 lastImagesCount = imgsObservedCount;
-
+                let phobias = {
+                    aracnofobia: true,
+                    ofidiofobia: true,
+                  };
+                chrome.runtime.sendMessage({verifyPhobiasOnContent: true}, response => {
+                    if (response.phobias) {
+                        phobias = response.phobias
+                    } 
+                });
+                
                 let imgsData = {
                     uniqueImageUrls: [],
+                    phobias: phobias,
                 };
                 let imageUrls = [];
                 newImgs.forEach((img) => {
@@ -284,7 +295,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case "mountLoadingDOM":
             if(message.phobias){
                 if(message.phobias.aracnofobia || message.phobias.ofidiofobia ){
-                    if (mountLoadingDOM()) {
+                    if (mountLoadingDOM(message.phobias)) {
                         setTimeout(function () {
                             sendResponse({ status: true });
                         }, 1);
