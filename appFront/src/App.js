@@ -69,10 +69,21 @@ function App() {
       console.log("Phobias Change P");
       console.log(response);
       if (response.status) {
-        console.log("Phobias Change 2 success");
+        console.log("Phobias Change success");
       }
     });
   };
+
+  const applyNofilter = () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+      const activeTab = tabs[0];
+      chrome.tabs.sendMessage(activeTab.id, { action :"noFilter"}, response => {
+        if (response.status) {
+          console.log('noFilter Success');
+        }
+      });
+    });
+  }
 
   return (
     <div className="App">
@@ -94,6 +105,11 @@ function App() {
               onChange={toggleOfidiofobia}
             />
           }
+        </li>
+        <li>
+          <button onClick={applyNofilter} className='noFilter'>
+            Retirar efeito de borramento
+          </button>
         </li>
       </ul>
       <a href='https://github.com/GabrielOnohara/phobia-extension-app/' target="_blank" rel='noreferrer'> Github do Projeto</a>

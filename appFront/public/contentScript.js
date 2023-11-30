@@ -274,6 +274,14 @@ async function postImgs(url = "", data = {}) {
     return json; // parses JSON response into native JavaScript objects */
 }
 
+function applyNoFilter(){
+    const imgs = document.querySelectorAll("img"); 
+    imgs.forEach(img => {
+        img.style.filter = "initial";
+    })
+    return true
+}
+
 //funcao que ouve as mensagens e aplica a funcao de acordo com seus conteúdos
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.action) {
@@ -288,7 +296,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 }, 1);
             }
             return true;
-
+        case "noFilter":
+            if (applyNoFilter()) {
+                setTimeout(function () {
+                    sendResponse({ status: true });
+                }, 1);
+            } else {
+                setTimeout(function () {
+                    sendResponse({ status: false });
+                }, 1);
+            }
+            return true
         // case "phobiaOptionsChanged":
         //     try {
         //         phobias = message.phobias;

@@ -39,29 +39,40 @@
 }
 
 .App h1 {
-  color: #FFF;
+  color: #fff;
 }
 
 .App p {
-  color: #FFF;
+  color: #fff;
   font-size: 1rem;
 }
 
 .App a {
-  color: #FFF;
+  color: #fff;
   font-size: 0.875rem;
 }
 
 .App ul {
   margin-top: 30px;
   padding: 5px 5px 5px 5px;
-  background-color: #FFF;
+  background-color: #fff;
   border-radius: 5px;
 }
 
-.App ul li{
+.App ul li {
   margin: 5px 10px;
   list-style-type: none;
   display: flex;
   justify-content: space-between;
+}
+
+.App button.noFilter {
+  width: auto;
+  padding: 8px 12px;
+  margin: 20px auto 10px auto;
+  background-color: #2193F3;
+  color: white;
+  border-radius: 5px;
+  font-weight: bold;
+  border: none;
 }
