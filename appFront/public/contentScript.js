@@ -11,9 +11,9 @@ port.onMessage.addListener((response) => {
 
 let lastImagesCount = 0;
 let lastImagesCountUnique = 0;
+//Ainda precisamos criar a logica para pegar as fobias
 let phobias = {
     aracnofobia: true,
-    tripofobia: true,
     coulrofobia: true,
 };
 
@@ -277,16 +277,6 @@ async function postImgs(url = "", data = {}) {
 //funcao que ouve as mensagens e aplica a funcao de acordo com seus conteúdos
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.action) {
-        case "manipulateDOM":
-            const rawImgs = document.querySelectorAll("img");
-            rawImgs.forEach((img) => {
-                img.style.filter = "blur(20px)";
-            });
-            setTimeout(function () {
-                sendResponse({ status: true });
-            }, 1);
-            return true;
-
         case "mountLoadingDOM":
             if (mountLoadingDOM()) {
                 setTimeout(function () {
@@ -299,18 +289,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
             return true;
 
-        case "phobiaOptionsChanged":
-            try {
-                phobias = message.phobias;
-                setTimeout(function () {
-                    sendResponse({ status: true });
-                }, 1);
-            } catch (error) {
-                setTimeout(function () {
-                    sendResponse({ status: false });
-                }, 1);
-            }
-            return true;
+        // case "phobiaOptionsChanged":
+        //     try {
+        //         phobias = message.phobias;
+        //         setTimeout(function () {
+        //             sendResponse({ status: true });
+        //         }, 1);
+        //     } catch (error) {
+        //         setTimeout(function () {
+        //             sendResponse({ status: false });
+        //         }, 1);
+        //     }
+        //     return true;
         // case "addingObserver":
         //   if(addingObserver()){
         //     setTimeout(function() {
