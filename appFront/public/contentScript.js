@@ -115,10 +115,7 @@ function mountLoadingDOM(phobias) {
             img.style.filter = "blur(10px)";
             // }
             if (!imageUrls.includes(img.src)) {
-                if (
-                    img.src.substring(0, 5) === "https" ||
-                    img.src.substring(0, 5) === "http"
-                ) {
+                if (img.src.substring(0, 5) === "https" || img.src.substring(0, 5) === "http") {
                     imageUrls.push(img.src);
                 }
             }
@@ -132,7 +129,7 @@ function mountLoadingDOM(phobias) {
                 imgsScoresKey.forEach((item) => {
                     console.log(item.score);
                     console.log(item.url);
-                    if (item?.score <= 0.6) {
+                    if (item?.score <= 0.75) {
                         document.querySelectorAll("img").forEach((img) => {
                             if (img.src === item?.url) {
                                 img.style.filter = "initial";
@@ -171,7 +168,7 @@ function addingObserver(htmlBodySelected) {
             const imgsObservedCount = document.querySelectorAll("img").length;
             if (lastImagesCount < imgsObservedCount) {
                 console.log("Quantidade de fotos alterou");
-                
+
                 //adiciona verificao adicional
                 const loadingContainer = document.createElement("div");
                 loadingContainer.className = "phobia-container";
@@ -189,13 +186,13 @@ function addingObserver(htmlBodySelected) {
                 let phobias = {
                     aracnofobia: true,
                     ofidiofobia: true,
-                  };
-                chrome.runtime.sendMessage({verifyPhobiasOnContent: true}, response => {
+                };
+                chrome.runtime.sendMessage({ verifyPhobiasOnContent: true }, (response) => {
                     if (response.phobias) {
-                        phobias = response.phobias
-                    } 
+                        phobias = response.phobias;
+                    }
                 });
-                
+
                 let imgsData = {
                     uniqueImageUrls: [],
                     phobias: phobias,
@@ -215,9 +212,7 @@ function addingObserver(htmlBodySelected) {
                 });
 
                 let uniqueImageUrls = [...new Set(imageUrls)];
-                imgsData.uniqueImageUrls = uniqueImageUrls.slice(0,
-                    lastImagesCountUnique
-                );
+                imgsData.uniqueImageUrls = uniqueImageUrls.slice(0, lastImagesCountUnique);
                 lastImagesCountUnique = imgsData.uniqueImageUrls.length;
 
                 postImgs("http://localhost:5000/detect_spider", imgsData)
@@ -226,15 +221,14 @@ function addingObserver(htmlBodySelected) {
                         imgsScoresKey.forEach((item) => {
                             console.log(item.score);
                             console.log(item.url);
-                            if (item?.score <= 0.6) {
+                            if (item?.score <= 0.75) {
                                 console.log("Bateu score obs");
-                                newImgs
-                                    .forEach((img) => {
-                                        if (img.src === item?.url) {
-                                            console.log("Entrou filtro");
-                                            img.style.filter = "initial";
-                                        }
-                                    });
+                                newImgs.forEach((img) => {
+                                    if (img.src === item?.url) {
+                                        console.log("Entrou filtro");
+                                        img.style.filter = "initial";
+                                    }
+                                });
                             }
                         });
                         // setTimeout(() => {
@@ -281,20 +275,20 @@ async function postImgs(url = "", data = {}) {
     return json; // parses JSON response into native JavaScript objects */
 }
 
-function applyNoFilter(){
-    const imgs = document.querySelectorAll("img"); 
-    imgs.forEach(img => {
+function applyNoFilter() {
+    const imgs = document.querySelectorAll("img");
+    imgs.forEach((img) => {
         img.style.filter = "initial";
-    })
-    return true
+    });
+    return true;
 }
 
 //funcao que ouve as mensagens e aplica a funcao de acordo com seus conteúdos
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.action) {
         case "mountLoadingDOM":
-            if(message.phobias){
-                if(message.phobias.aracnofobia || message.phobias.ofidiofobia ){
+            if (message.phobias) {
+                if (message.phobias.aracnofobia || message.phobias.ofidiofobia) {
                     if (mountLoadingDOM(message.phobias)) {
                         setTimeout(function () {
                             sendResponse({ status: true });
@@ -309,7 +303,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         sendResponse({ status: true });
                     }, 1);
                 }
-
             }
             return true;
         case "noFilter":
@@ -322,7 +315,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     sendResponse({ status: false });
                 }, 1);
             }
-            return true
+            return true;
         // case "phobiaOptionsChanged":
         //     try {
         //         phobias = message.phobias;

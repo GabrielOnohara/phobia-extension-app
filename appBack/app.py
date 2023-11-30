@@ -12,6 +12,7 @@ CORS(app)
 model_path = './last3.pt'
 model = YOLO(model_path)
 
+
 def detect(src):
     response = requests.get(src, stream=True)
     print(response.status_code)
@@ -25,13 +26,16 @@ def detect(src):
             results = model(im)[0]
             print("---FIM YOLO---")
 
-            scoreList = [result[4] for result in results.boxes.data.tolist()] or [0.0]
-            return max(scoreList)
-        except Exception as e:
-            print("Error processing image:", e)
-            return 0.0
-    else:
-        return 0.0
+            scoreList = []
+            for result in results.boxes.data.tolist():
+                x1, y1, x2, y2, score, class_id = result
+                scoreList.append(score)
+            return scoreList
+        except:
+            return [-2.0]
+    else:  # caso falhe
+        return [-1.0]
+
 
 @app.route("/detect_spider", methods=['POST'])
 def detect_spider():
@@ -51,7 +55,10 @@ def detect_spider():
                 for future, url in zip(futures, urls):
                     try:
                         score = future.result()
-                        result.append({"url": url, "score": score})
+
+                        if len(score) == 0:
+                            score.append(0.0)
+                        result.append({"url": url, "score": max(score)})
                     except Exception as e:
                         result.append({"url": url, "error": str(e)})
 
