@@ -5,33 +5,36 @@ import React, {
 import './App.css'
 import Toggle from 'react-styled-toggle';
 function App() {
-
-  // React.useEffect(() => {
-  //   // Add event listener for tab updates
-  //   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  //     if (changeInfo.url) {
-  //       console.log('URL changed:', changeInfo.url);
-  //       // You can call manipulateDOM() here or perform other actions
-  //     }
-  //   });
-
-  //   // Clean up the event listener when the component unmounts
-  //   // return () => {
-  //   //   chrome.tabs.onUpdated.removeListener();
-  //   // };
   // }, []);
+  chrome.runtime.sendMessage({popupOpen: true}, response => {
+    if (response.phobias) {
+      setAracnofobia(response.phobias.aracnofobia)
+      setOfidiofobia(response.phobias.ofidiofobia)
+    }
+  });
+
 
   const [aracnofobia, setAracnofobia] = React.useState(true)
   const [ofidiofobia, setOfidiofobia] = React.useState(true)
 
   const toggleAracnofobia = () => {
     setAracnofobia(oldValue => {
-      phobiaOptionsChanged(
-        {
-          aracnofobia: !oldValue,
-          ofidiofobia: ofidiofobia,
-        }
-      )
+      if(ofidiofobia === undefined){
+        phobiaOptionsChanged(
+          {
+            aracnofobia: !oldValue,
+            ofidiofobia: true,
+          }
+        )
+      }else{
+        phobiaOptionsChanged(
+          {
+            aracnofobia: !oldValue,
+            ofidiofobia: ofidiofobia,
+          }
+        )
+      }
+      
       return !oldValue
     })
     
@@ -40,25 +43,34 @@ function App() {
 
   const toggleOfidiofobia = () => {
     setOfidiofobia(oldValue => {
-      phobiaOptionsChanged(
-        {
-          aracnofobia: aracnofobia,
-          ofidiofobia: !oldValue,
-        }
-      )
+      if(aracnofobia === undefined){
+        phobiaOptionsChanged(
+          {
+            aracnofobia: true,
+            ofidiofobia: !oldValue,
+          }
+        )
+      }else {
+        phobiaOptionsChanged(
+          {
+            aracnofobia: aracnofobia,
+            ofidiofobia: !oldValue,
+          }
+        )
+      }
       return !oldValue
     })
     console.log("Toggle Ofidiofobia");
   }
 
   const phobiaOptionsChanged = (phobias) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-      const activeTab = tabs[0];
-      chrome.tabs.sendMessage(activeTab.id, { action: 'phobiaOptionsChanged', phobias: phobias }, response => {
-        if (response.success) {
-          console.log('phobiaOptionsChanged successful');
-        }
-      });
+
+    chrome.runtime.sendMessage({phobiasChange: true, phobias: phobias}, response => {
+      console.log("Phobias Change P");
+      console.log(response);
+      if (response.status) {
+        console.log("Phobias Change 2 success");
+      }
     });
   };
 
