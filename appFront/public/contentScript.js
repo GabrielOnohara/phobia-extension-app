@@ -12,10 +12,6 @@ port.onMessage.addListener((response) => {
 let lastImagesCount = 0;
 let lastImagesCountUnique = 0;
 //Ainda precisamos criar a logica para pegar as fobias
-let phobias = {
-    aracnofobia: true,
-    coulrofobia: true,
-};
 
 function mountLoadingDOM() {
     try {
@@ -286,14 +282,23 @@ function applyNoFilter(){
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.action) {
         case "mountLoadingDOM":
-            if (mountLoadingDOM()) {
-                setTimeout(function () {
-                    sendResponse({ status: true });
-                }, 1);
-            } else {
-                setTimeout(function () {
-                    sendResponse({ status: false });
-                }, 1);
+            if(message.phobias){
+                if(message.phobias.aracnofobia || message.phobias.ofidiofobia ){
+                    if (mountLoadingDOM()) {
+                        setTimeout(function () {
+                            sendResponse({ status: true });
+                        }, 1);
+                    } else {
+                        setTimeout(function () {
+                            sendResponse({ status: false });
+                        }, 1);
+                    }
+                } else {
+                    setTimeout(function () {
+                        sendResponse({ status: true });
+                    }, 1);
+                }
+
             }
             return true;
         case "noFilter":

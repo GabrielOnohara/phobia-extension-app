@@ -10,7 +10,7 @@ let informationControlObject = {
 
 let phobias = {
   aracnofobia: true,
-  tripofobia: true,
+  ofidiofobia: true,
 };
 
 //funcao que atualiza as tabs assim que a extensão for instalada
@@ -86,7 +86,7 @@ chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
         console.log("tab will be processed")
         //verifica conexao com content script
         if(informationControlObject.contentScriptWasSetted){
-          chrome.tabs.sendMessage(tabId, { action: 'mountLoadingDOM' }, response => {
+          chrome.tabs.sendMessage(tabId, { action: 'mountLoadingDOM', phobias: phobias }, response => {
             if (chrome.runtime.lastError) {
               console.error(chrome.runtime.lastError);
               return;
@@ -145,7 +145,7 @@ chrome.tabs.onActivated.addListener(
         if(informationControlObject.tabs[tabId.toString()]?.url !== undefined && !informationControlObject.tabs[tabId.toString()].processed){
           //verifica conexao com content script
           if(informationControlObject.contentScriptWasSetted){
-            chrome.tabs.sendMessage(tabId, { action: 'mountLoadingDOM' }, response => {
+            chrome.tabs.sendMessage(tabId, { action: 'mountLoadingDOM', phobias: phobias }, response => {
               if (chrome.runtime.lastError) {
                 console.error(chrome.runtime.lastError);
                 return;
@@ -246,8 +246,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
     console.log("phobiasChange B");
     try {
       if(message.phobias){
-        console.log(message.phobias);
-        phobias = message.phobias;
+        phobias.aracnofobia = message.phobias.aracnofobia;
+        phobias.ofidiofobia = message.phobias.ofidiofobia;
         sendResponse({ status: true });
       }
     } catch (error) {
