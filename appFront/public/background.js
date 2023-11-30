@@ -8,6 +8,11 @@ let informationControlObject = {
   contentScriptWasSetted: false,
 }
 
+let phobias = {
+  aracnofobia: true,
+  tripofobia: true,
+};
+
 //funcao que atualiza as tabs assim que a extensão for instalada
 function reloadAllTabs() {
   chrome.tabs.query({}, function(tabs) {
@@ -233,8 +238,20 @@ chrome.tabs.onRemoved.addListener(
 //   }
 // )
 
-/* a fazer
-1 - verificar a remocao de cada uma delas 
-2 - fazer processo de borramento automatica
-3 - comecar processo de animacao 
-*/
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
+  if(message.popupOpen) {
+    sendResponse({ status: true, phobias: phobias});
+  }
+  if(message.phobiasChange){
+    console.log("phobiasChange B");
+    try {
+      if(message.phobias){
+        console.log(message.phobias);
+        phobias = message.phobias;
+        sendResponse({ status: true });
+      }
+    } catch (error) {
+      sendResponse({ status: false });
+    }
+  }
+});
