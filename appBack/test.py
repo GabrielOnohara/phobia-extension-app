@@ -92,7 +92,9 @@ def hello_world():
 
             # Acessar a lista de URLs
             urls = data.get('uniqueImageUrls', [])
-
+            if(len(urls) == 0):
+                return jsonify({"error": "lista vazia"}), 200 
+            
             result = []
 
             imagesBatch = getImages(urls)

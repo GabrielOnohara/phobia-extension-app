@@ -10,7 +10,6 @@ port.onMessage.addListener((response) => {
 });
 
 let lastImagesCount = 0;
-let lastImagesCountUnique = 0;
 //Ainda precisamos criar a logica para pegar as fobias
 
 function mountLoadingDOM(phobias) {
@@ -114,15 +113,15 @@ function mountLoadingDOM(phobias) {
             // if(!imageUrls.includes(img.src)){
             img.style.filter = "blur(10px)";
             // }
-            if (!imageUrls.includes(img.src)) {
-                if (img.src.substring(0, 5) === "https" || img.src.substring(0, 5) === "http") {
-                    imageUrls.push(img.src);
+            let src = img.src || img.currentSrc || img.dataset.src
+            if (!imageUrls.includes(src)) {
+                if (src.substring(0, 5) === "https" || src.substring(0, 4) === "http") {
+                    imageUrls.push(src);
                 }
             }
         });
 
         imgsData.uniqueImageUrls = [...new Set(imageUrls)];
-        lastImagesCountUnique = imgsData.uniqueImageUrls.length;
         postImgs("http://localhost:5000/detect_spider", imgsData)
             .then((data) => {
                 let imgsScoresKey = data; // JSON data parsed by `data.json()` call
@@ -130,8 +129,10 @@ function mountLoadingDOM(phobias) {
                     console.log(item.score);
                     console.log(item.url);
                     if (item?.score <= 0.75) {
-                        document.querySelectorAll("img").forEach((img) => {
-                            if (img.src === item?.url) {
+                        imgs.forEach((img) => {
+                            let src = img.src || img.currentSrc || img.dataset.src
+                            if (src === item?.url) {
+                                console.log("Entrou filtro");
                                 img.style.filter = "initial";
                             }
                         });
@@ -201,19 +202,19 @@ function addingObserver(htmlBodySelected) {
                 newImgs.forEach((img) => {
                     img.style.filter = "blur(10px)";
                     // img.style.filter = "blur(20px)";
-                    if (!imageUrls.includes(img.src)) {
+                    let src = img.src || img.currentSrc || img.dataset.src
+                    if (!imageUrls.includes(src)) {
                         if (
-                            img.src.substring(0, 5) === "https" ||
-                            img.src.substring(0, 5) === "http"
+                            src.substring(0, 5) === "https" ||
+                            src.substring(0, 4) === "http"
                         ) {
-                            imageUrls.push(img.src);
+                            imageUrls.push(src);
                         }
                     }
                 });
 
                 let uniqueImageUrls = [...new Set(imageUrls)];
-                imgsData.uniqueImageUrls = uniqueImageUrls.slice(0, lastImagesCountUnique);
-                lastImagesCountUnique = imgsData.uniqueImageUrls.length;
+                imgsData.uniqueImageUrls = uniqueImageUrls
 
                 postImgs("http://localhost:5000/detect_spider", imgsData)
                     .then((data) => {
@@ -224,7 +225,8 @@ function addingObserver(htmlBodySelected) {
                             if (item?.score <= 0.75) {
                                 console.log("Bateu score obs");
                                 newImgs.forEach((img) => {
-                                    if (img.src === item?.url) {
+                                    let src = img.src || img.currentSrc || img.dataset.src
+                                    if (src === item?.url) {
                                         console.log("Entrou filtro");
                                         img.style.filter = "initial";
                                     }
@@ -250,6 +252,8 @@ function addingObserver(htmlBodySelected) {
 
 async function postImgs(url = "", data = {}) {
     // Default options are marked with *
+    console.log("DADOS");
+    console.log(data);
     try {
         const response = await fetch(url, {
             method: "POST", // *GET, POST, PUT, DELETE, etc.
