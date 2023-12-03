@@ -109,13 +109,10 @@ function mountLoadingDOM(phobias) {
         };
         let imageUrls = [];
         imgs.forEach((img) => {
-            // img.style.filter = "blur(20px)";
-            // if(!imageUrls.includes(img.src)){
-            img.style.filter = "blur(10px)";
-            // }
+            // img.style.filter = "blur(20px)";<<<<<<< .merge_file_GYKbmU
             let src = img.src || img.currentSrc || img.dataset.src
             if (!imageUrls.includes(src)) {
-                if (src.substring(0, 5) === "https" || src.substring(0, 4) === "http") {
+                if (src.substring(0, 5) === "https" || src.substring(0, 5) === "http") {
                     imageUrls.push(src);
                 }
             }
@@ -243,7 +240,6 @@ function addingObserver(htmlBodySelected) {
                     });
             }
         });
-
         observer.observe(htmlBodySelected, { childList: true, subtree: true });
     } catch (error) {
         console.log(error);
