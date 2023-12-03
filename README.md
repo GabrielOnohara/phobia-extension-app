@@ -15,7 +15,6 @@ The project is divided into front-end (appFront) and back-end (appBack). Inside 
 On the root folder, run:
 
 ```console
-cd appFrond
 ```
 
 #### `npm start`
@@ -24,7 +23,7 @@ Runs the app in the development mode.\
 This command will shows the chrome popup jsx page.
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-![image](https://github.com/GabrielOnohara/phobia-extension-app/assets/64387740/baab394f-ced2-4981-a27c-94d52f5d2acb)
+![Alt text](extensionPanel.png)
 
 #### `npm run build`
 
