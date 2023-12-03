@@ -6,6 +6,7 @@ import json
 from PIL import Image
 import requests
 from concurrent.futures import ThreadPoolExecutor
+from fake_useragent import UserAgent
 
 app = Flask(__name__)
 CORS(app)
@@ -13,6 +14,8 @@ CORS(app)
 model_path = './last3.pt'
 # Load a model
 model = YOLO(model_path)  # load a custom model
+
+ua = UserAgent()
 
 
 def detect(src):
@@ -39,46 +42,37 @@ def detect(src):
         return [-1.0]
 
 
-'''def getImages(urls):
-    finalImageList = []
-    for url in urls:
-        response = requests.get(url, stream=True)
-        print(response.status_code)
-        if (response.status_code == 200):  # 200 status OK
-            try:
-                print("---IMAGEM---")
-                # to work with every image format
-                im = Image.open(response.raw)
-                print("---FIM IMAGEM---")
-
-                finalImageList.append(im)
-            except:
-                print("An exception occurred")
-        else:  # caso falhe
-            print("Response status error: " + response.status_code)
-    print(finalImageList)
-    return finalImageList'''
-
-
 def download_image(url):
-    response = requests.get(url, stream=True)
-    print(response.status_code)
-    if response.status_code == 200:
-        try:
-            print("---IMAGEM---")
-            im = Image.open(response.raw)
-            print("---FIM IMAGEM---")
-            return im
-        except Exception as e:
-            print("An exception occurred:", e)
-            response = requests.get(
-                "https://img.freepik.com/free-photo/abstract-surface-textures-white-concrete-stone-wall_74190-8189.jpg?size=626&ext=jpg&ga=GA1.1.2116175301.1701302400&semt=ais", stream=True)
-            return Image.open(response.raw)
-    else:
-        print("Response status error:", response.status_code)
-    response = requests.get(
-        "https://img.freepik.com/free-photo/abstract-surface-textures-white-concrete-stone-wall_74190-8189.jpg?size=626&ext=jpg&ga=GA1.1.2116175301.1701302400&semt=ais", stream=True)
-    return Image.open(response.raw)
+    headers = {
+        'User-Agent': ua.random}
+    try:
+        response = requests.get(url, headers=headers, stream=True)
+        print("--URL: ", url, " | STATUSCODE: ", response.status_code, "--")
+        if response.status_code == 200:
+            try:
+                im = Image.open(response.raw)
+                print("-- 0")
+                print("Sucesso")
+                print("--")
+                return im
+            except Exception as e:
+                print("-- 1")
+                print("Error:", e)
+                print("Imagem em Branco no lugar de ", url, "--")
+                print("--")
+                return Image.open("./blank_image.png")
+        else:
+            print("-- 2")
+            print("Response status error:", response.status_code)
+            print("Imagem em Branco no lugar de ", url, "--")
+            print("--")
+            return Image.open("./blank_image.png")
+    except Exception as e:
+        print("-- 3")
+        print("Error:", response.status_code)
+        print("Imagem em Branco no lugar de ", url, "--")
+        print("--")
+        return Image.open("./blank_image.png")
 
 
 def getImages(urls):
@@ -91,7 +85,7 @@ def getImages(urls):
             if result:
                 finalImageList.append(
                     {"url": url, "image_data": result, "score": 0.0})
-                print(finalImageList)
+                # print(finalImageList)
 
     print(finalImageList)
     return finalImageList
@@ -112,8 +106,8 @@ def hello_world():
 
             # Acessar a lista de URLs
             urls = data.get('uniqueImageUrls', [])
-
-            result = []
+            if (len(urls) == 0):
+                return jsonify({"error": "lista vazia"}), 200
 
             imagesBatch = getImages(urls)
             image_data_array = [entry["image_data"] for entry in imagesBatch]
@@ -121,14 +115,6 @@ def hello_world():
             print("VERIFICANDO")
             # max, pois o maior que importa
             results = model(image_data_array)
-            # print(results.boxes.data.tolist())
-
-            '''scoreList = []
-            for result in results.boxes.data.tolist():
-                x1, y1, x2, y2, score, class_id = result
-                scoreList.append(score)
-                print(score)
-            print(scoreList)'''
 
             i = 0
             for det in results:
@@ -143,16 +129,6 @@ def hello_world():
                 i += 1
 
             print(imagesBatch)
-            '''
-            for score in scores:
-                if len(score) == 0:
-                    score = [0.0]
-                result.append({"url": "url", "score": max(score)})
-
-            print("-----RESPOSTA-----")
-            print(result)
-            print("-----FIM RESPOSTA-----")
-            return jsonify(result)'''
             for items in imagesBatch:
                 del items["image_data"]
 
@@ -160,3 +136,8 @@ def hello_world():
         except Exception as e:
             # Lidar com erros de análise JSON ou outros erros
             return jsonify({"error": str(e)}), 400
+
+
+if __name__ == "__main__":
+    from waitress import serve
+    serve(app, host='0.0.0.0', port=8080)
