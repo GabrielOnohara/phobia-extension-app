@@ -136,7 +136,16 @@ function mountLoadingDOM(phobias) {
                         imgsScoresKey.forEach((item) => {
                             console.log(item.score);
                             console.log(item.url);
-                            if (item?.score <= 0.75) {
+
+                            var desborrar = true;
+                            if (item?.score.aranha >= 0.75 && imgsData.phobias.aracnofobia) {
+                                desborrar = false;
+                            }
+                            if (item?.score.cobra >= 0.55 && imgsData.phobias.ofidiofobia) {
+                                desborrar = false;
+                            }
+
+                            if (desborrar === true) {
                                 imgs.forEach((img) => {
                                     let src = img.src || img.currentSrc || img.dataset.src;
                                     if (src === item?.url) {
@@ -221,72 +230,91 @@ function addingObserver(htmlBodySelected) {
                     if (response.phobias) {
                         phobias = response.phobias;
                     }
-                });
 
-                let imgsData = {
-                    uniqueImageUrls: [],
-                    phobias: phobias,
-                };
-                let imageUrls = [];
-                newImgs.forEach((img) => {
-                    img.style.filter = "blur(10px)";
-                    // img.style.filter = "blur(20px)";
-                    let src = img.src || img.currentSrc || img.dataset.src;
-                    if (!imageUrls.includes(src)) {
-                        if (src.substring(0, 5) === "https" || src.substring(0, 4) === "http") {
-                            imageUrls.push(src);
-                        }
-                    }
-                });
-
-                let uniqueImageUrls = [...new Set(imageUrls)];
-                imgsData.uniqueImageUrls = uniqueImageUrls;
-
-                var imgBatches = createImageBatches(imgsData);
-
-                imgBatches.forEach((imgBatch) => {
-                    postImgs("http://localhost:8080/detect_spider", imgBatch)
-                        .then((data) => {
-                            let imgsScoresKey = data; // JSON data parsed by `data.json()` call
-                            if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
-                                imgsScoresKey.forEach((item) => {
-                                    console.log(item.score);
-                                    console.log(item.url);
-                                    if (item?.score <= 0.75) {
-                                        imgs.forEach((img) => {
-                                            let src = img.src || img.currentSrc || img.dataset.src;
-                                            if (src === item?.url) {
-                                                console.log("Entrou filtro");
-                                                img.style.filter = "initial";
-                                            }
-                                        });
-                                    }
-                                });
-                            } else {
-                                console.error("Invalid or empty data received");
+                    let imgsData = {
+                        uniqueImageUrls: [],
+                        phobias: phobias,
+                    };
+                    let imageUrls = [];
+                    newImgs.forEach((img) => {
+                        img.style.filter = "blur(10px)";
+                        // img.style.filter = "blur(20px)";
+                        let src = img.src || img.currentSrc || img.dataset.src;
+                        if (!imageUrls.includes(src)) {
+                            if (src.substring(0, 5) === "https" || src.substring(0, 4) === "http") {
+                                imageUrls.push(src);
                             }
-                            // setTimeout(() => {
-                            //   document.body.removeChild(loadingContainer);
-                            // }, 2000);
-                            //document.body.removeChild(loadingContainer);
+                        }
+                    });
+
+                    let uniqueImageUrls = [...new Set(imageUrls)];
+                    imgsData.uniqueImageUrls = uniqueImageUrls;
+
+                    var imgBatches = createImageBatches(imgsData);
+
+                    const promises = [];
+                    imgBatches.forEach((imgBatch) => {
+                        const promise = postImgs("http://localhost:8080/detect_spider", imgBatch)
+                            .then((data) => {
+                                let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+                                console.log(imgsScoresKey);
+                                if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
+                                    imgsScoresKey.forEach((item) => {
+                                        console.log(item.score);
+                                        console.log(item.url);
+
+                                        var desborrar = true;
+                                        if (
+                                            item?.score.aranha >= 0.75 &&
+                                            imgsData.phobias.aracnofobia
+                                        ) {
+                                            desborrar = false;
+                                        }
+                                        if (
+                                            item?.score.cobra >= 0.55 &&
+                                            imgsData.phobias.ofidiofobia
+                                        ) {
+                                            desborrar = false;
+                                        }
+
+                                        if (desborrar === true) {
+                                            newImgs.forEach((img) => {
+                                                let src =
+                                                    img.src || img.currentSrc || img.dataset.src;
+                                                if (src === item?.url) {
+                                                    console.log("Entrou filtro");
+                                                    img.style.filter = "initial";
+                                                }
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    console.error("Invalid or empty data received");
+                                }
+                                // setTimeout(() => {
+                                //   document.body.removeChild(loadingContainer);
+                                // }, 2000);
+                                //document.body.removeChild(loadingContainer);
+                            })
+                            .catch((error) => {
+                                console.log("CHAMOU PARA O BATCH: ");
+                                console.log(imgBatch);
+                                console.log(error);
+                                document.body.removeChild(loadingContainer);
+                            });
+                        promises.push(promise);
+                    });
+
+                    Promise.all(promises)
+                        .then(() => {
+                            document.body.removeChild(loadingContainer);
                         })
                         .catch((error) => {
-                            console.log("CHAMOU PARA O BATCH: ");
-                            console.log(imgBatch);
-                            console.log(error);
+                            // Este bloco será executado se houver um erro em qualquer uma das promessas
+                            console.error("Erro ao aguardar todas as iterações:", error);
                             document.body.removeChild(loadingContainer);
                         });
                 });
-
-                Promise.all(promises)
-                    .then(() => {
-                        document.body.removeChild(loadingContainer);
-                    })
-                    .catch((error) => {
-                        // Este bloco será executado se houver um erro em qualquer uma das promessas
-                        console.error("Erro ao aguardar todas as iterações:", error);
-                        document.body.removeChild(loadingContainer);
-                    });
             }
         });
 
@@ -302,7 +330,7 @@ function createImageBatches(data = {}) {
     var imgBatches = [];
     data.uniqueImageUrls.forEach((imageUrl) => {
         if (imgBatches[batchCounter] === undefined) {
-            imgBatches.push({ uniqueImageUrls: [] });
+            imgBatches.push({ uniqueImageUrls: [], phobias: data.phobias });
         }
         imgBatches[batchCounter]["uniqueImageUrls"].push(imageUrl);
 
