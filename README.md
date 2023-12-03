@@ -15,6 +15,7 @@ The project is divided into front-end (appFront) and back-end (appBack). Inside 
 On the root folder, run:
 
 ```console
+cd appFront
 ```
 
 #### `npm start`
