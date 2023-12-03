@@ -128,11 +128,9 @@ function mountLoadingDOM(phobias) {
             const promise = postImgs("http://localhost:8080/detect_spider", imgBatch)
                 .then((data) => {
                     let imgsScoresKey = data; // JSON data parsed by `data.json()` call
-                    console.log(imgsScoresKey);
+
                     if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
                         imgsScoresKey.forEach((item) => {
-                            console.log(item.score);
-                            console.log(item.url);
 
                             var desborrar = true;
                             if (item?.score.aranha >= 0.75 && imgsData.phobias.aracnofobia) {
@@ -257,8 +255,6 @@ function addingObserver(htmlBodySelected) {
                                 console.log(imgsScoresKey);
                                 if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
                                     imgsScoresKey.forEach((item) => {
-                                        console.log(item.score);
-                                        console.log(item.url);
 
                                         var desborrar = true;
                                         if (
@@ -352,6 +348,7 @@ async function postImgs(url = "", data = {}) {
             // credentials: "same-origin", // include, *same-origin, omit
             headers: {
                 "Content-Type": "text/plain",
+                'Access-Control-Allow-Origin': '*'
                 // 'Content-Type': 'application/x-www-form-urlencoded',
             },
             // redirect: "follow", // manual, *follow, error
