@@ -96,7 +96,7 @@ def getMaxScore(det_list, imgs_batch, phobia):
 
 
 @app.route("/detect_spider", methods=['POST'])
-def hello_world():
+def detect_spider():
     if request.headers['Content-Type'] == 'text/plain':
         try:
             # Obter os dados JSON do corpo da solicitação
