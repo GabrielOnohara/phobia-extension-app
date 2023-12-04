@@ -125,7 +125,7 @@ function mountLoadingDOM(phobias) {
 
         const promises = [];
         imgBatches.forEach((imgBatch) => {
-            const promise = postImgs("http://localhost:8080/detect_spider", imgBatch)
+            const promise = postImgs("http://localhost:8080/detect_phobias", imgBatch)
                 .then((data) => {
                     let imgsScoresKey = data; // JSON data parsed by `data.json()` call
 
@@ -249,7 +249,7 @@ function addingObserver(htmlBodySelected) {
 
                     const promises = [];
                     imgBatches.forEach((imgBatch) => {
-                        const promise = postImgs("http://localhost:8080/detect_spider", imgBatch)
+                        const promise = postImgs("http://localhost:8080/detect_phobias", imgBatch)
                             .then((data) => {
                                 let imgsScoresKey = data; // JSON data parsed by `data.json()` call
                                 console.log(imgsScoresKey);
