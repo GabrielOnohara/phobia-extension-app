@@ -121,73 +121,220 @@ function mountLoadingDOM(phobias) {
         imgsData.uniqueImageUrls = [...new Set(imageUrls)];
 
         var imgBatches = createImageBatches(imgsData);
-        console.log(imgBatches);
+        if(phobias.aracnofobia && phobias.ofidiofobia){
+            let results = {}
+            const promises = [];
+            imgBatches.forEach((imgBatch) => {
+                const promise1 = postImgs("http://localhost:8080/detect_spider", imgBatch)
+                    .then((data) => {
+                        let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+    
+                        if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
+                            imgsScoresKey.forEach((item) => {
+                                if (item?.score > 0.75) {
+                                    results[item?.url] ||= true
+                                }else{
+                                    results[item?.url] ||= false
+                                }
+            
+                            });
+                        } else {
+                            console.error("Invalid or empty data received");
+                        }
+                        // setTimeout(() => {
+                        //     document.body.removeChild(loadingContainer);
+                        //     addingObserver(document.body);
+                        // }, 2000);
+                        //document.body.removeChild(loadingContainer);
+                        //addingObserver(document.body);
+                    })
+                    .catch((error) => {
+                        console.log("CHAMOU PARA O BATCH: ");
+                        console.log(imgBatch);
+                        console.log(error);
+                        //document.body.removeChild(loadingContainer);
+                        //addingObserver(document.body);
+                    });
+                
+                const promise2 = postImgs("http://localhost:8080/detect_snake", imgBatch)
+                    .then((data) => {
+                        let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+    
+                        if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
+                            imgsScoresKey.forEach((item) => {
 
-        const promises = [];
-        imgBatches.forEach((imgBatch) => {
-            const promise = postImgs("http://localhost:8080/detect_phobias", imgBatch)
-                .then((data) => {
-                    let imgsScoresKey = data; // JSON data parsed by `data.json()` call
-
-                    if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
-                        imgsScoresKey.forEach((item) => {
-
-                            var desborrar = true;
-                            if (item?.score.aranha >= 0.75 && imgsData.phobias.aracnofobia) {
-                                desborrar = false;
-                            }
-                            if (item?.score.cobra >= 0.55 && imgsData.phobias.ofidiofobia) {
-                                desborrar = false;
-                            }
-
-                            if (desborrar === true) {
-                                imgs.forEach((img) => {
-                                    let src = img.src || img.currentSrc || img.dataset.src;
-                                    if (src === item?.url) {
-                                        console.log("Entrou filtro");
-                                        img.style.filter = "initial";
-                                    }
-                                });
-                            }
-                        });
-                    } else {
-                        console.error("Invalid or empty data received");
-                    }
-                    // setTimeout(() => {
-                    //     document.body.removeChild(loadingContainer);
-                    //     addingObserver(document.body);
-                    // }, 2000);
-                    //document.body.removeChild(loadingContainer);
-                    //addingObserver(document.body);
-                })
-                .catch((error) => {
-                    console.log("CHAMOU PARA O BATCH: ");
-                    console.log(imgBatch);
-                    console.log(error);
-                    //document.body.removeChild(loadingContainer);
-                    //addingObserver(document.body);
-                });
-
-            promises.push(promise);
-        });
-
-        Promise.all(promises)
+                                if (item?.score > 0.55) {
+                                    results[item?.url] ||= true
+                                } else {
+                                    results[item?.url] ||= false
+                                }
+    
+                            });
+                        } else {
+                            console.error("Invalid or empty data received");
+                        }
+                        // setTimeout(() => {
+                        //     document.body.removeChild(loadingContainer);
+                        //     addingObserver(document.body);
+                        // }, 2000);
+                        //document.body.removeChild(loadingContainer);
+                        //addingObserver(document.body);
+                    })
+                    .catch((error) => {
+                        console.log("CHAMOU PARA O BATCH: ");
+                        console.log(imgBatch);
+                        console.log(error);
+                        //document.body.removeChild(loadingContainer);
+                        //addingObserver(document.body);
+                    });
+    
+                promises.push(promise1);
+                promises.push(promise2);
+            });
+            Promise.all(promises)
             .then(() => {
-                document.body.removeChild(loadingContainer);
-                addingObserver(document.body);
+                imgs.forEach((img) => {
+                    let src = img.src || img.currentSrc || img.dataset.src;
+                    if (!results[src]) {
+                        console.log("Entrou filtro");
+                        img.style.filter = "initial";
+                    }
+                });
+                if (document.body.contains(loadingContainer)) {
+                    document.body.removeChild(loadingContainer);
+                }
+            })
+            .catch((error) => {
+                if (document.body.contains(loadingContainer)) {
+                    document.body.removeChild(loadingContainer);
+                }
+                // Este bloco será executado se houver um erro em qualquer uma das promessas
+                console.error("Erro ao aguardar todas as iterações:", error);
+            });
+        }
+        else if(phobias.aracnofobia && !phobias.ofidiofobia){
+            const promises = [];
+            imgBatches.forEach((imgBatch) => {
+                const promise = postImgs("http://localhost:8080/detect_spider", imgBatch)
+                    .then((data) => {
+                        let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+    
+                        if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
+                            imgsScoresKey.forEach((item) => {
+    
+                                let desborrar = true
+                                if (item?.score >= 0.75 && imgsData.phobias.aracnofobia) {
+                                    desborrar = false;
+                                }
+                                if (desborrar === true) {
+                                    imgs.forEach((img) => {
+                                        let src = img.src || img.currentSrc || img.dataset.src;
+                                        if (src === item?.url) {
+                                            console.log("Entrou filtro");
+                                            img.style.filter = "initial";
+                                        }
+                                    });
+                                }
+                            });
+                        } else {
+                            console.error("Invalid or empty data received");
+                        }
+                        // setTimeout(() => {
+                        //     document.body.removeChild(loadingContainer);
+                        //     addingObserver(document.body);
+                        // }, 2000);
+                        //document.body.removeChild(loadingContainer);
+                        //addingObserver(document.body);
+                    })
+                    .catch((error) => {
+                        console.log("CHAMOU PARA O BATCH: ");
+                        console.log(imgBatch);
+                        console.log(error);
+                        //document.body.removeChild(loadingContainer);
+                        //addingObserver(document.body);
+                    });
+                
+    
+                promises.push(promise);
+
+            });
+            Promise.all(promises)
+            .then(() => {
+                if (document.body.contains(loadingContainer)) {
+                    document.body.removeChild(loadingContainer);
+                }
             })
             .catch((error) => {
                 // Este bloco será executado se houver um erro em qualquer uma das promessas
                 console.error("Erro ao aguardar todas as iterações:", error);
-                document.body.removeChild(loadingContainer);
-                addingObserver(document.body);
+                if (document.body.contains(loadingContainer)) {
+                    document.body.removeChild(loadingContainer);
+                }
             });
+        }
+        else if(!phobias.aracnofobia && phobias.ofidiofobia){
+            const promises = [];
+            imgBatches.forEach((imgBatch) => {
+                
+                const promise = postImgs("http://localhost:8080/detect_snake", imgBatch)
+                    .then((data) => {
+                        let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+    
+                        if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
+                            imgsScoresKey.forEach((item) => {
+                                let desborrar = true
+    
+                                if (item?.score>= 0.55 && imgsData.phobias.ofidiofobia) {
+                                    desborrar = false;
+                                }
+    
+                                if (desborrar === true) {
+                                    imgs.forEach((img) => {
+                                        let src = img.src || img.currentSrc || img.dataset.src;
+                                        if (src === item?.url) {
+                                            console.log("Entrou filtro");
+                                            img.style.filter = "initial";
+                                        }
+                                    });
+                                }
+                            });
+                        } else {
+                            console.error("Invalid or empty data received");
+                        }
+                        // setTimeout(() => {
+                        //     document.body.removeChild(loadingContainer);
+                        //     addingObserver(document.body);
+                        // }, 2000);
+                        //document.body.removeChild(loadingContainer);
+                        //addingObserver(document.body);
+                    })
+                    .catch((error) => {
+                        console.log("CHAMOU PARA O BATCH: ");
+                        console.log(imgBatch);
+                        console.log(error);
+                        //document.body.removeChild(loadingContainer);
+                        //addingObserver(document.body);
+                    });
+    
+                promises.push(promise);
 
-        // setTimeout(() => {
-        //     document.body.removeChild(loadingContainer);
-        //     addingObserver(document.body);
-        // }, 2000);
-        // Return a function to remove the changes
+            });
+            Promise.all(promises)
+            .then(() => {
+                if (document.body.contains(loadingContainer)) {
+                    document.body.removeChild(loadingContainer);
+                }
+            })
+            .catch((error) => {
+                // Este bloco será executado se houver um erro em qualquer uma das promessas
+                console.error("Erro ao aguardar todas as iterações:", error);
+                if (document.body.contains(loadingContainer)) {
+                    document.body.removeChild(loadingContainer);
+                }
+            });
+        }
+
+        addingObserver(document.body);
         return true;
     } catch (error) {
         console.error(error);
@@ -246,67 +393,218 @@ function addingObserver(htmlBodySelected) {
                     imgsData.uniqueImageUrls = uniqueImageUrls;
 
                     var imgBatches = createImageBatches(imgsData);
-
-                    const promises = [];
-                    imgBatches.forEach((imgBatch) => {
-                        const promise = postImgs("http://localhost:8080/detect_phobias", imgBatch)
-                            .then((data) => {
-                                let imgsScoresKey = data; // JSON data parsed by `data.json()` call
-                                console.log(imgsScoresKey);
-                                if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
-                                    imgsScoresKey.forEach((item) => {
-
-                                        var desborrar = true;
-                                        if (
-                                            item?.score.aranha >= 0.75 &&
-                                            imgsData.phobias.aracnofobia
-                                        ) {
-                                            desborrar = false;
-                                        }
-                                        if (
-                                            item?.score.cobra >= 0.55 &&
-                                            imgsData.phobias.ofidiofobia
-                                        ) {
-                                            desborrar = false;
-                                        }
-
-                                        if (desborrar === true) {
-                                            newImgs.forEach((img) => {
-                                                let src =
-                                                    img.src || img.currentSrc || img.dataset.src;
-                                                if (src === item?.url) {
-                                                    console.log("Entrou filtro");
-                                                    img.style.filter = "initial";
-                                                }
-                                            });
-                                        }
-                                    });
-                                } else {
-                                    console.error("Invalid or empty data received");
-                                }
-                                // setTimeout(() => {
-                                //   document.body.removeChild(loadingContainer);
-                                // }, 2000);
-                                //document.body.removeChild(loadingContainer);
-                            })
-                            .catch((error) => {
-                                console.log("CHAMOU PARA O BATCH: ");
-                                console.log(imgBatch);
-                                console.log(error);
-                                document.body.removeChild(loadingContainer);
-                            });
-                        promises.push(promise);
-                    });
-
-                    Promise.all(promises)
+                    if(phobias.aracnofobia && phobias.ofidiofobia){
+                        let results = {}
+                        const promises = [];
+                        imgBatches.forEach((imgBatch) => {
+                            const promise1 = postImgs("http://localhost:8080/detect_spider", imgBatch)
+                                .then((data) => {
+                                    let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+                
+                                    if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
+                                        imgsScoresKey.forEach((item) => {
+                                            if (item?.score > 0.75) {
+                                                results[item?.url] ||= true
+                                            }else{
+                                                results[item?.url] ||= false
+                                            }
+                        
+                                        });
+                                    } else {
+                                        console.error("Invalid or empty data received");
+                                    }
+                                    // setTimeout(() => {
+                                    //     document.body.removeChild(loadingContainer);
+                                    //     addingObserver(document.body);
+                                    // }, 2000);
+                                    //document.body.removeChild(loadingContainer);
+                                    //addingObserver(document.body);
+                                })
+                                .catch((error) => {
+                                    console.log("CHAMOU PARA O BATCH: ");
+                                    console.log(imgBatch);
+                                    console.log(error);
+                                    //document.body.removeChild(loadingContainer);
+                                    //addingObserver(document.body);
+                                });
+                            
+                            const promise2 = postImgs("http://localhost:8080/detect_snake", imgBatch)
+                                .then((data) => {
+                                    let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+                
+                                    if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
+                                        imgsScoresKey.forEach((item) => {
+            
+                                            if (item?.score > 0.55) {
+                                                results[item?.url] ||= true
+                                            } else {
+                                                results[item?.url] ||= false
+                                            }
+                
+                                        });
+                                    } else {
+                                        console.error("Invalid or empty data received");
+                                    }
+                                    // setTimeout(() => {
+                                    //     document.body.removeChild(loadingContainer);
+                                    //     addingObserver(document.body);
+                                    // }, 2000);
+                                    //document.body.removeChild(loadingContainer);
+                                    //addingObserver(document.body);
+                                })
+                                .catch((error) => {
+                                    console.log("CHAMOU PARA O BATCH: ");
+                                    console.log(imgBatch);
+                                    console.log(error);
+                                    //document.body.removeChild(loadingContainer);
+                                    //addingObserver(document.body);
+                                });
+                
+                            promises.push(promise1);
+                            promises.push(promise2);
+                        });
+                        Promise.all(promises)
                         .then(() => {
-                            document.body.removeChild(loadingContainer);
+                            newImgs.forEach((img) => {
+                                let src = img.src || img.currentSrc || img.dataset.src;
+                                if (!results[src]) {
+                                    console.log("Entrou filtro");
+                                    img.style.filter = "initial";
+                                }
+                            });
+                            if (document.body.contains(loadingContainer)) {
+                                document.body.removeChild(loadingContainer);
+                            }
                         })
                         .catch((error) => {
                             // Este bloco será executado se houver um erro em qualquer uma das promessas
                             console.error("Erro ao aguardar todas as iterações:", error);
-                            document.body.removeChild(loadingContainer);
+                            if (document.body.contains(loadingContainer)) {
+                                document.body.removeChild(loadingContainer);
+                            }
                         });
+                    }
+                    else if(phobias.aracnofobia && !phobias.ofidiofobia){
+                        const promises = [];
+                        imgBatches.forEach((imgBatch) => {
+                            const promise = postImgs("http://localhost:8080/detect_spider", imgBatch)
+                                .then((data) => {
+                                    let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+                
+                                    if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
+                                        imgsScoresKey.forEach((item) => {
+                
+                                            let desborrar = true
+                                            if (item?.score >= 0.75 && imgsData.phobias.aracnofobia) {
+                                                desborrar = false;
+                                            }
+                                            if (desborrar === true) {
+                                                newImgs.forEach((img) => {
+                                                    let src = img.src || img.currentSrc || img.dataset.src;
+                                                    if (src === item?.url) {
+                                                        console.log("Entrou filtro");
+                                                        img.style.filter = "initial";
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    } else {
+                                        console.error("Invalid or empty data received");
+                                    }
+                                    // setTimeout(() => {
+                                    //     document.body.removeChild(loadingContainer);
+                                    //     addingObserver(document.body);
+                                    // }, 2000);
+                                    //document.body.removeChild(loadingContainer);
+                                    //addingObserver(document.body);
+                                })
+                                .catch((error) => {
+                                    console.log("CHAMOU PARA O BATCH: ");
+                                    console.log(imgBatch);
+                                    console.log(error);
+                                    //document.body.removeChild(loadingContainer);
+                                    //addingObserver(document.body);
+                                });
+                            
+                
+                            promises.push(promise);
+            
+                        });
+                        Promise.all(promises)
+                        .then(() => {
+                            if (document.body.contains(loadingContainer)) {
+                                document.body.removeChild(loadingContainer);
+                            }
+                        })
+                        .catch((error) => {
+                            // Este bloco será executado se houver um erro em qualquer uma das promessas
+                            console.error("Erro ao aguardar todas as iterações:", error);
+                            if (document.body.contains(loadingContainer)) {
+                                document.body.removeChild(loadingContainer);
+                            }
+                        });
+                    }
+                    else if(!phobias.aracnofobia && phobias.ofidiofobia){
+                        const promises = [];
+                        imgBatches.forEach((imgBatch) => {
+                            
+                            const promise = postImgs("http://localhost:8080/detect_snake", imgBatch)
+                                .then((data) => {
+                                    let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+                
+                                    if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
+                                        imgsScoresKey.forEach((item) => {
+                                            let desborrar = true
+                
+                                            if (item?.score >= 0.55 && imgsData.phobias.ofidiofobia) {
+                                                desborrar = false;
+                                            }
+                
+                                            if (desborrar === true) {
+                                                newImgs.forEach((img) => {
+                                                    let src = img.src || img.currentSrc || img.dataset.src;
+                                                    if (src === item?.url) {
+                                                        console.log("Entrou filtro");
+                                                        img.style.filter = "initial";
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    } else {
+                                        console.error("Invalid or empty data received");
+                                    }
+                                    // setTimeout(() => {
+                                    //     document.body.removeChild(loadingContainer);
+                                    //     addingObserver(document.body);
+                                    // }, 2000);
+                                    //document.body.removeChild(loadingContainer);
+                                    //addingObserver(document.body);
+                                })
+                                .catch((error) => {
+                                    console.log("CHAMOU PARA O BATCH: ");
+                                    console.log(imgBatch);
+                                    console.log(error);
+                                    //document.body.removeChild(loadingContainer);
+                                    //addingObserver(document.body);
+                                });
+                
+                            promises.push(promise);
+            
+                        });
+                        Promise.all(promises)
+                        .then(() => {
+                            if (document.body.contains(loadingContainer)) {
+                                document.body.removeChild(loadingContainer);
+                            }
+                        })
+                        .catch((error) => {
+                            // Este bloco será executado se houver um erro em qualquer uma das promessas
+                            console.error("Erro ao aguardar todas as iterações:", error);
+                            if (document.body.contains(loadingContainer)) {
+                                document.body.removeChild(loadingContainer);
+                            }
+                        });
+                    }
                 });
             }
         });
