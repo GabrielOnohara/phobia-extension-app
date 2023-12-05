@@ -47,7 +47,7 @@ On the root folder, run:
 cd appBack
 ```
 
-#### flask --app .\app.py run
+#### python -m waitress --host=0.0.0.0 --port=8080 app:app
 
 Runs the Flask application, which receives the image links through a JSON and processes each one with a YOLOv8 model.
 
