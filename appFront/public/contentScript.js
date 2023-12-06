@@ -13,6 +13,7 @@ let lastImagesCount = 0;
 //Ainda precisamos criar a logica para pegar as fobias
 
 function mountLoadingDOM(phobias) {
+    addingObserver(document.body);
     try {
         // Create and add the warning message container
         const loadingContainer = document.createElement("div");
@@ -112,7 +113,7 @@ function mountLoadingDOM(phobias) {
             img.style.filter = "blur(10px)";
             let src = img.src || img.currentSrc || img.dataset.src
             if (!imageUrls.includes(src)) {
-                if (src.substring(0, 5) === "https" || src.substring(0, 5) === "http") {
+                if (src.substring(0, 5) === "https" || src.substring(0, 4) === "http") {
                     imageUrls.push(src);
                 }
             }
@@ -334,7 +335,7 @@ function mountLoadingDOM(phobias) {
             });
         }
 
-        addingObserver(document.body);
+        
         return true;
     } catch (error) {
         console.error(error);

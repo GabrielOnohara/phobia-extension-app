@@ -36,6 +36,18 @@ chrome.runtime.onConnect.addListener(port => {
       });
       informationControlObject.contentScriptWasSetted = true
   }
+  chrome.storage.local.get(['phobias'], function(result) {
+    if(result.phobias){
+      let chromeStorePhobias = JSON.parse(result.phobias);
+      phobias =  chromeStorePhobias
+    }else {
+      chrome.storage.local.set({ phobias: JSON.stringify(phobias) }, function() {
+        console.log('Chrome Store Phobias Setted');
+      });
+    }
+
+  });
+
 });
 
 
@@ -251,6 +263,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
       if(message.phobias){
         phobias.aracnofobia = message.phobias.aracnofobia;
         phobias.ofidiofobia = message.phobias.ofidiofobia;
+        chrome.storage.local.set({ phobias: JSON.stringify(phobias) }, function() {
+          console.log('Chrome Store Phobias Setted2');
+        });
         sendResponse({ status: true });
       }
     } catch (error) {
