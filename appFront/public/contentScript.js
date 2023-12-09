@@ -112,7 +112,7 @@ function mountLoadingDOM(phobias) {
         imgs.forEach((img) => {
             img.style.filter = "blur(10px)";
             let src = img.src || img.currentSrc || img.dataset.src
-            if (!imageUrls.includes(src)) {
+            if (src && !imageUrls.includes(src)) {
                 if (src.substring(0, 5) === "https" || src.substring(0, 4) === "http") {
                     imageUrls.push(src);
                 }
@@ -383,7 +383,7 @@ function addingObserver(htmlBodySelected) {
                         img.style.filter = "blur(10px)";
                         // img.style.filter = "blur(20px)";
                         let src = img.src || img.currentSrc || img.dataset.src;
-                        if (!imageUrls.includes(src)) {
+                        if (src && !imageUrls.includes(src)) {
                             if (src.substring(0, 5) === "https" || src.substring(0, 4) === "http") {
                                 imageUrls.push(src);
                             }
