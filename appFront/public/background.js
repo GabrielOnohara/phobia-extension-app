@@ -36,18 +36,20 @@ chrome.runtime.onConnect.addListener(port => {
       });
       informationControlObject.contentScriptWasSetted = true
   }
-  chrome.storage.local.get(['phobias'], function(result) {
-    if(result.phobias){
-      let chromeStorePhobias = JSON.parse(result.phobias);
-      phobias =  chromeStorePhobias
-    }else {
-      chrome.storage.local.set({ phobias: JSON.stringify(phobias) }, function() {
-        console.log('Chrome Store Phobias Setted');
-      });
-    }
-
-  });
-
+  if(informationControlObject.contentScriptWasSetted){
+    chrome.storage.local.get(['phobias'], function(result) {
+      if(result.phobias){
+        let chromeStorePhobias = JSON.parse(result.phobias);
+        phobias =  chromeStorePhobias
+        console.log('Chrome Store Phobias Storage Getted1');
+      }else {
+        chrome.storage.local.set({ phobias: JSON.stringify(phobias) }, function() {
+          console.log('Chrome Store Phobias Storage Setted1');
+        });
+      }
+  
+    });
+  }
 });
 
 
@@ -256,14 +258,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
       if(result.phobias){
         let chromeStorePhobias = JSON.parse(result.phobias);
         phobias =  chromeStorePhobias
+        console.log('Chrome Store Phobias storage Getted2');
         sendResponse({ status: true, phobias: phobias});
       }else {
         chrome.storage.local.set({ phobias: JSON.stringify(phobias) }, function() {
-          console.log('Chrome Store Phobias Setted');
+          console.log('Chrome Store Phobias Setted2');
+          sendResponse({ status: true, phobias: phobias});
         });
-        sendResponse({ status: true, phobias: phobias});
       }
-  
     });
 
   }
@@ -277,7 +279,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
         phobias.aracnofobia = message.phobias.aracnofobia;
         phobias.ofidiofobia = message.phobias.ofidiofobia;
         chrome.storage.local.set({ phobias: JSON.stringify(phobias) }, function() {
-          console.log('Chrome Store Phobias Setted2');
+          console.log('Chrome Store Phobias Setted3');
         });
         sendResponse({ status: true });
       }
@@ -285,4 +287,5 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
       sendResponse({ status: false });
     }
   }
+  return true
 });
