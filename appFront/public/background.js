@@ -252,7 +252,20 @@ chrome.tabs.onRemoved.addListener(
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
   if(message.popupOpen) {
-    sendResponse({ status: true, phobias: phobias});
+    chrome.storage.local.get(['phobias'], function(result) {
+      if(result.phobias){
+        let chromeStorePhobias = JSON.parse(result.phobias);
+        phobias =  chromeStorePhobias
+        sendResponse({ status: true, phobias: phobias});
+      }else {
+        chrome.storage.local.set({ phobias: JSON.stringify(phobias) }, function() {
+          console.log('Chrome Store Phobias Setted');
+        });
+        sendResponse({ status: true, phobias: phobias});
+      }
+  
+    });
+
   }
   if(message.verifyPhobiasOnContent){
     sendResponse({ status: true, phobias: phobias});
