@@ -1,4 +1,5 @@
 # Phobia Extension App
+
 ![Alt text](gif1.gif)
 
 This project is a chrome extension that deals with possible sensible pictures into the page content.
