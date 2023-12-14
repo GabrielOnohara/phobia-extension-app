@@ -1,5 +1,5 @@
 # Phobia Extension App
-
+![Alt text](gif1.gif)
 This project is a chrome extension that deals with possible sensible pictures into the page content.
 It will proccess the images contents with AI(YOLO V8) to detect sensible photos for persons with phobias.
 The AI object detector project is in another directory.
