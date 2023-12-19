@@ -1,6 +1,5 @@
 /* global chrome */
 
-//variavel de controle de informacao
 let informationControlObject = {
   tabs: {},
   windows: [],
@@ -13,7 +12,7 @@ let phobias = {
   ofidiofobia: true,
 };
 
-//funcao que atualiza as tabs assim que a extensão for instalada
+
 function reloadAllTabs() {
   chrome.tabs.query({}, function(tabs) {
       tabs.forEach(function(tab) {
@@ -22,12 +21,11 @@ function reloadAllTabs() {
   });
 }
 
-// Chamando a função ao instalar a extensão
+
 chrome.runtime.onInstalled.addListener(function() {
   reloadAllTabs();
 });
 
-//funcao que verifica conexao com content script
 chrome.runtime.onConnect.addListener(port => {
   if (port.name === "contentScript") {
       port.onMessage.addListener(message => {
@@ -39,16 +37,11 @@ chrome.runtime.onConnect.addListener(port => {
 });
 
 
-//Listener que funciona quando atualizamos a tab
+
 chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
-  console.log("OnUpdated");
-  // console.log('Tab Id updated:', tabId);
-  // console.log('ChangeInfo updated:', changeInfo,);
-  // console.log('Tab updated:', tab);
-  
-  //verificado mudanca de status da pagina quando ela esta carregando
+
   if (changeInfo.status === 'loading') {
-    //verifica se o dado de url ja esta presente na variavel de tab
+
     if(tab.url?.length){
       //verifica se a tab eh nova
       if(!informationControlObject.tabs.hasOwnProperty(tabId.toString())){
@@ -61,30 +54,27 @@ chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
         }
       }   
 
-      //adiciona uma nova url na variavel de controle
       if(!informationControlObject.urls.hasOwnProperty(changeInfo.url)){
         informationControlObject.urls[changeInfo.url] = {active:true, processed: false}
       }
-      //atualiza url da tab
+
       informationControlObject.tabs[tabId.toString()].url = tab.url
-      //sempre que uma tela for atualizada seu status sera reiniciada devido ha uma atualizacao de conteuda da propria tela
+
       informationControlObject.tabs[tabId.toString()].processed = false
     }
 
   } else if(changeInfo.status === 'complete') {
-    //verifica se o dado de url ja esta presente na variavel de tab
+
     if(tab.url?.length){
-      //adiciona uma nova url na variavel de controle
+
       if(!informationControlObject.urls.hasOwnProperty(changeInfo.url)){
         informationControlObject.urls[changeInfo.url] = {active:true, processed: false}
       }
-      //atualiza url da tab
+
       informationControlObject.tabs[tabId.toString()].url = tab.url
 
-      //verifica se a url ja foi processada
       if(informationControlObject.tabs[tabId.toString()]?.url !== undefined && !informationControlObject.tabs[tabId.toString()].processed){
-        console.log("tab will be processed")
-        //verifica conexao com content script
+
         if(informationControlObject.contentScriptWasSetted){
           chrome.tabs.sendMessage(tabId, { action: 'mountLoadingDOM', phobias: phobias }, response => {
             if (chrome.runtime.lastError) {
@@ -105,32 +95,23 @@ chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
   }
   
   if (changeInfo.url) {
-    //atualiza url da tab
     informationControlObject.tabs[tabId.toString()].url = changeInfo.url
 
-    //adiciona uma nova url
     if(!informationControlObject.urls.hasOwnProperty(changeInfo.url)){
       informationControlObject.urls[changeInfo.url] = {active:true, processed: false}
     }
   }
-  // console.table(informationControlObject.tabs);
-  // console.table(informationControlObject.urls);
-  // console.log(informationControlObject.windows);
 });
 
-// Listener que funciona quando clicamos para abrir a tab
 chrome.tabs.onActivated.addListener(
 ({tabId, windowId})  =>  {
-  // console.log('Tab ID activated:', tabId);
-  // console.log('Window ID activated:', windowId);
 
-  //procura pela tab por id na atraves da funcao get
   chrome.tabs.get(tabId,  (tabInfo) => {
-    //verifica se a tab esta carregada completamente
+
     if(tabInfo.status === 'complete'){
-      //verifica se ha uma url valida
+
       if(tabInfo.url.length){
-        //verifica se a tab eh nova
+
         if(!informationControlObject.tabs.hasOwnProperty(tabId.toString())){
           let url = tabInfo.url ?? ""
           informationControlObject.tabs[tabId.toString()] = {windowId: windowId, url: url, processed: false}
@@ -141,9 +122,9 @@ chrome.tabs.onActivated.addListener(
             informationControlObject.urls[url] = {active:true, processed: false}
           }
         }     
-        //verifica se a url ja foi processada
+
         if(informationControlObject.tabs[tabId.toString()]?.url !== undefined && !informationControlObject.tabs[tabId.toString()].processed){
-          //verifica conexao com content script
+
           if(informationControlObject.contentScriptWasSetted){
             chrome.tabs.sendMessage(tabId, { action: 'mountLoadingDOM', phobias: phobias }, response => {
               if (chrome.runtime.lastError) {
@@ -169,12 +150,9 @@ chrome.tabs.onActivated.addListener(
   console.log(informationControlObject.windows);
 });
 
-//Listener que funciona quando fechamos  a tab
+
 chrome.tabs.onRemoved.addListener(
   (tabId, {isWindowClosing, windowId}) => {
-    // console.log('Tab Id  removed:', tabId);
-    // console.log('Window Id removed:', windowId);
-    // console.log('Window is Closing removed:', isWindowClosing);
 
     if(informationControlObject.tabs.hasOwnProperty(tabId.toString())){
 
@@ -200,43 +178,6 @@ chrome.tabs.onRemoved.addListener(
     console.log(informationControlObject.windows);
   }
 )
-
-
-// //Listener que funciona quando trocamos de janela
-// chrome.windows.onFocusChanged.addListener(
-//   (windowId) =>{
-//     console.log("Windows Focus Change");
-//     chrome.tabs.query({windowId: windowId, active:true}, tabs =>{
-//       let tab = tabs[0]
-//       console.log("Windows Focus Change Tab");
-//       console.log(tab);
-//       if(!informationControlObject.tabs.hasOwnProperty(tab.id.toString())){
-//             if(tab.status === 'complete'){
-//               if(tab.url.length){ 
-//                 let url = tab.url
-//                 informationControlObject.tabs[tab.id.toString()] = {windowId: windowId, url: url}
-      
-//                 if(!informationControlObject.windows.includes(windowId)){
-//                   informationControlObject.windows.push(windowId)
-//                 }
-//                 if(!informationControlObject.urls.hasOwnProperty(url)){
-//                   informationControlObject.urls[url] = {active:true, processed: false}
-//                 }
-//                }
-//             }
-
-
-//       }else{
-  
-//       }
-
-//     })
-//     //chrome.windows nao consegue acessar variavel informationControlObject
-//     // console.table(informationControlObject.tabs);
-//     // console.table(informationControlObject.urls);
-//     // console.log(informationControlObject.windows);
-//   }
-// )
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
   if(message.popupOpen) {
