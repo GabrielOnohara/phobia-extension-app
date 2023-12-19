@@ -8,6 +8,7 @@ import requests
 from concurrent.futures import ThreadPoolExecutor
 from fake_useragent import UserAgent
 import torch
+import traceback
 
 app = Flask(__name__)
 CORS(app)
@@ -66,37 +67,37 @@ def getImages(urls):
         for url, future in zip(urls, futures):
             result = future.result()
             if result:
-                finalImageList.append(
-                    {"url": url, "image_data": result, "score": {"aranha": 0.0, "cobra": 0.0}})
-                # print(finalImageList)
+                finalImageList.append({"url": url, "image_data": result, "score": {"aranha": 0.0, "cobra": 0.0}})
+                print("Image added:", url)
 
-    print(finalImageList)
+    print("Final Image List:", finalImageList)
     return finalImageList
 
 
-def getMaxScore(det_list, imgs_batch, phobia):
+def getMaxScore(det_list, imgs_batch):
     for i in range(len(det_list)):
         det = det_list[i]
         # print(det.boxes.data.tolist())
         print("---- NOVA IMAGEM ----")
         score_list = []
-        if det.boxes.data.tolist():
-            for box in det.boxes.data.tolist():
-                x1, y1, x2, y2, score, class_id = box
-                score_list.append(score)
-            print(max(score_list, default=0.0))
-            imgs_batch[i]["score"].update(
-                {phobia: max(score_list, default=0.0)})
-        else:
-            imgs_batch[i]["score"].update(
-                {phobia: -1.0})
-            print("Detecção de caixas vazias para a imagem", i)
+        if i < len(imgs_batch):
+            if det.boxes.data.tolist():
+                for box in det.boxes.data.tolist():
+                    x1, y1, x2, y2, score, class_id = box
+                    score_list.append(score)
+                print(max(score_list, default=0.0))
+                imgs_batch[i].update(
+                    {"score": max(score_list, default=0.0)})
+            else:
+                imgs_batch[i].update(
+                    {"score": -1.0})
+                print("Detecção de caixas vazias para a imagem", i)
 
     return imgs_batch
 
 
-@app.route("/detect_phobias", methods=['POST'])
-def detect_phobias():
+@app.route("/detect_spider", methods=['POST'])
+def detect_spider():
     if request.headers['Content-Type'] == 'text/plain':
         try:
             # Obter os dados JSON do corpo da solicitação
@@ -118,17 +119,13 @@ def detect_phobias():
             imagesBatch = getImages(urls)
             image_data_array = [entry["image_data"] for entry in imagesBatch]
 
-            print("VERIFICANDO")
+            print("VERIFICANDO ARANHA")
             # max, pois o maior que importa
             if data["phobias"]["aracnofobia"] == True:
                 results = model1(image_data_array)
-
-                imagesBatch = getMaxScore(results, imagesBatch, "aranha")
-
-            if data["phobias"]["ofidiofobia"] == True:
-                results2 = model2(image_data_array)
-
-                imagesBatch = getMaxScore(results2, imagesBatch, "cobra")
+                print("Length of results1:", len(results))
+                print("Length of image_data_array:", len(image_data_array))
+                imagesBatch = getMaxScore(results, imagesBatch)
 
             """ for i in range(len(results)):
                 det = results[i]
@@ -157,7 +154,72 @@ def detect_phobias():
             print("------ERRO EX------")
             print(imagesBatch)
             print(str(e))
+            traceback.print_exc()
+
             return jsonify({"error3": str(e)}), 400
+        
+@app.route("/detect_snake", methods=['POST'])
+def detect_snake():
+    if request.headers['Content-Type'] == 'text/plain':
+        try:
+            # Obter os dados JSON do corpo da solicitação
+            # Converts bytes to json
+            data = request.get_data()
+            data = data.decode('utf8').strip('\'')
+            data = json.loads(data)
+            print("-----REQUISICAO-----")
+            print(data)
+            print("-----FIM REQUISICAO-----")
+
+            # Acessar a lista de URLs
+            urls = data.get('uniqueImageUrls', [])
+            if (len(urls) == 0):
+                return jsonify({"error": "lista vazia"}), 200
+
+            result = []
+
+            imagesBatch = getImages(urls)
+            image_data_array = [entry["image_data"] for entry in imagesBatch]
+
+            print("VERIFICANDO COBRA")
+
+            if data["phobias"]["ofidiofobia"] == True:
+                results2 = model2(image_data_array)
+                print("Length of results2:", len(results2))
+                print("Length of image_data_array:", len(image_data_array))
+                imagesBatch = getMaxScore(results2, imagesBatch)
+
+            """ for i in range(len(results)):
+                det = results[i]
+                # print(det.boxes.data.tolist())
+                print("---- NOVA IMAGEM ----")
+                score_list = []
+                if det.boxes.data.tolist():
+                    for box in det.boxes.data.tolist():
+                        x1, y1, x2, y2, score, class_id = box
+                        score_list.append(score)
+                    print(max(score_list, default=0.0))
+                    imagesBatch[i].update(
+                        {"score": max(score_list, default=0.0)})
+                else:
+                    imagesBatch[i].update(
+                        {"score": -1.0})
+                    print("Detecção de caixas vazias para a imagem", i) """
+
+            print(imagesBatch)
+            for items in imagesBatch:
+                del items["image_data"]
+
+            return jsonify(imagesBatch)
+        except Exception as e:
+            # Lidar com erros de análise JSON ou outros erros
+            print("------ERRO EX------")
+            print(imagesBatch)
+            print(str(e))
+            traceback.print_exc()
+
+            return jsonify({"error3": str(e)}), 400
+
 
 
 if __name__ == "__main__":
