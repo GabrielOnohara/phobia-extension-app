@@ -1,7 +1,5 @@
 /* global chrome */
-//Observacao sempre que for necessário responder uma mensagem que não seja assíncrona use o return true
 
-//funcao que verifica conexao
 const port = chrome.runtime.connect({ name: "contentScript" });
 port.postMessage({ data: "Mensagem do content script" });
 
@@ -10,11 +8,10 @@ port.onMessage.addListener((response) => {
 });
 
 let lastImagesCount = 0;
-//Ainda precisamos criar a logica para pegar as fobias
 
 function mountLoadingDOM(phobias) {
     try {
-        // Create and add the warning message container
+
         const loadingContainer = document.createElement("div");
         loadingContainer.className = "phobia-container";
         loadingContainer.innerHTML = `
@@ -24,7 +21,6 @@ function mountLoadingDOM(phobias) {
 
         document.body.appendChild(loadingContainer);
 
-        // Apply the background style
         const styleElement = document.createElement("style");
         styleElement.textContent = `
         .phobia-container {
@@ -99,7 +95,6 @@ function mountLoadingDOM(phobias) {
       `;
         document.head.appendChild(styleElement);
 
-        // Apply the blur to the images
         const imgs = document.querySelectorAll("img");
         lastImagesCount = imgs.length;
 
@@ -127,7 +122,7 @@ function mountLoadingDOM(phobias) {
         imgBatches.forEach((imgBatch) => {
             const promise = postImgs("http://localhost:8080/detect_phobias", imgBatch)
                 .then((data) => {
-                    let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+                    let imgsScoresKey = data;
 
                     if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
                         imgsScoresKey.forEach((item) => {
@@ -153,19 +148,13 @@ function mountLoadingDOM(phobias) {
                     } else {
                         console.error("Invalid or empty data received");
                     }
-                    // setTimeout(() => {
-                    //     document.body.removeChild(loadingContainer);
-                    //     addingObserver(document.body);
-                    // }, 2000);
-                    //document.body.removeChild(loadingContainer);
-                    //addingObserver(document.body);
+
                 })
                 .catch((error) => {
                     console.log("CHAMOU PARA O BATCH: ");
                     console.log(imgBatch);
                     console.log(error);
-                    //document.body.removeChild(loadingContainer);
-                    //addingObserver(document.body);
+
                 });
 
             promises.push(promise);
@@ -177,17 +166,11 @@ function mountLoadingDOM(phobias) {
                 addingObserver(document.body);
             })
             .catch((error) => {
-                // Este bloco será executado se houver um erro em qualquer uma das promessas
                 console.error("Erro ao aguardar todas as iterações:", error);
                 document.body.removeChild(loadingContainer);
                 addingObserver(document.body);
             });
 
-        // setTimeout(() => {
-        //     document.body.removeChild(loadingContainer);
-        //     addingObserver(document.body);
-        // }, 2000);
-        // Return a function to remove the changes
         return true;
     } catch (error) {
         console.error(error);
@@ -195,7 +178,6 @@ function mountLoadingDOM(phobias) {
     }
 }
 
-//funcao que adiciona observer
 function addingObserver(htmlBodySelected) {
     try {
         const observer = new MutationObserver((mutationsList, observer) => {
@@ -212,7 +194,7 @@ function addingObserver(htmlBodySelected) {
                 `;
 
                 document.body.appendChild(loadingContainer);
-                // Apply the blur to the images
+
                 const allImgs = document.querySelectorAll("img");
                 const imgArray = Array.from(allImgs);
                 let newImgs = imgArray.slice(lastImagesCount);
@@ -233,7 +215,7 @@ function addingObserver(htmlBodySelected) {
                     let imageUrls = [];
                     newImgs.forEach((img) => {
                         img.style.filter = "blur(10px)";
-                        // img.style.filter = "blur(20px)";
+
                         let src = img.src || img.currentSrc || img.dataset.src;
                         if (!imageUrls.includes(src)) {
                             if (src.substring(0, 5) === "https" || src.substring(0, 4) === "http") {
@@ -251,7 +233,7 @@ function addingObserver(htmlBodySelected) {
                     imgBatches.forEach((imgBatch) => {
                         const promise = postImgs("http://localhost:8080/detect_phobias", imgBatch)
                             .then((data) => {
-                                let imgsScoresKey = data; // JSON data parsed by `data.json()` call
+                                let imgsScoresKey = data;
                                 console.log(imgsScoresKey);
                                 if (Array.isArray(imgsScoresKey) && imgsScoresKey.length > 0) {
                                     imgsScoresKey.forEach((item) => {
@@ -284,10 +266,7 @@ function addingObserver(htmlBodySelected) {
                                 } else {
                                     console.error("Invalid or empty data received");
                                 }
-                                // setTimeout(() => {
-                                //   document.body.removeChild(loadingContainer);
-                                // }, 2000);
-                                //document.body.removeChild(loadingContainer);
+
                             })
                             .catch((error) => {
                                 console.log("CHAMOU PARA O BATCH: ");
@@ -303,7 +282,7 @@ function addingObserver(htmlBodySelected) {
                             document.body.removeChild(loadingContainer);
                         })
                         .catch((error) => {
-                            // Este bloco será executado se houver um erro em qualquer uma das promessas
+
                             console.error("Erro ao aguardar todas as iterações:", error);
                             document.body.removeChild(loadingContainer);
                         });
@@ -361,9 +340,6 @@ async function postImgs(url = "", data = {}) {
         console.log(error);
     } finally {
     }
-    /* const json = await response.json();
-    console.log(json);
-    return json; // parses JSON response into native JavaScript objects */
 }
 
 function applyNoFilter() {
@@ -374,7 +350,6 @@ function applyNoFilter() {
     return true;
 }
 
-//funcao que ouve as mensagens e aplica a funcao de acordo com seus conteúdos
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.action) {
         case "mountLoadingDOM":
@@ -407,29 +382,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 }, 1);
             }
             return true;
-        // case "phobiaOptionsChanged":
-        //     try {
-        //         phobias = message.phobias;
-        //         setTimeout(function () {
-        //             sendResponse({ status: true });
-        //         }, 1);
-        //     } catch (error) {
-        //         setTimeout(function () {
-        //             sendResponse({ status: false });
-        //         }, 1);
-        //     }
-        //     return true;
-        // case "addingObserver":
-        //   if(addingObserver()){
-        //     setTimeout(function() {
-        //       sendResponse({status: true});
-        //     }, 1);
-        //   }else{
-        //     setTimeout(function() {
-        //       sendResponse({status: false});
-        //     }, 1);
-        //   }
-        //   return true
+
         default:
             return true;
     }
