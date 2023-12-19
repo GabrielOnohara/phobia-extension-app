@@ -5,7 +5,7 @@ import React, {
 import './App.css'
 import Toggle from 'react-styled-toggle';
 function App() {
-  // }, []);
+
   chrome.runtime.sendMessage({popupOpen: true}, response => {
     if (response.phobias) {
       setAracnofobia(response.phobias.aracnofobia)

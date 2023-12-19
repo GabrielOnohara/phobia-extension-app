@@ -1,5 +1,7 @@
 # Phobia Extension App
 
+![Alt text](gif1.gif)
+
 This project is a chrome extension that deals with possible sensible pictures into the page content.
 It will proccess the images contents with AI(YOLO V8) to detect sensible photos for persons with phobias.
 The AI object detector project is in another directory.
@@ -47,7 +49,7 @@ On the root folder, run:
 cd appBack
 ```
 
-#### flask --app .\app.py run
+#### python -m waitress --host=0.0.0.0 --port=8080 app:app
 
 Runs the Flask application, which receives the image links through a JSON and processes each one with a YOLOv8 model.
 

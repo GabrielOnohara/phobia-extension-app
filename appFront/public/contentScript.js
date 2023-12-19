@@ -1,7 +1,5 @@
 /* global chrome */
-//Observacao sempre que for necessário responder uma mensagem que não seja assíncrona use o return true
 
-//funcao que verifica conexao
 const port = chrome.runtime.connect({ name: "contentScript" });
 port.postMessage({ data: "Mensagem do content script" });
 
@@ -10,12 +8,11 @@ port.onMessage.addListener((response) => {
 });
 
 let lastImagesCount = 0;
-//Ainda precisamos criar a logica para pegar as fobias
 
 function mountLoadingDOM(phobias) {
     addingObserver(document.body);
     try {
-        // Create and add the warning message container
+
         const loadingContainer = document.createElement("div");
         loadingContainer.className = "phobia-container";
         loadingContainer.innerHTML = `
@@ -25,7 +22,6 @@ function mountLoadingDOM(phobias) {
 
         document.body.appendChild(loadingContainer);
 
-        // Apply the background style
         const styleElement = document.createElement("style");
         styleElement.textContent = `
         .phobia-container {
@@ -100,7 +96,6 @@ function mountLoadingDOM(phobias) {
       `;
         document.head.appendChild(styleElement);
 
-        // Apply the blur to the images
         const imgs = document.querySelectorAll("img");
         lastImagesCount = imgs.length;
 
@@ -266,7 +261,6 @@ function mountLoadingDOM(phobias) {
                 }
             })
             .catch((error) => {
-                // Este bloco será executado se houver um erro em qualquer uma das promessas
                 console.error("Erro ao aguardar todas as iterações:", error);
                 if (document.body.contains(loadingContainer)) {
                     document.body.removeChild(loadingContainer);
@@ -343,7 +337,6 @@ function mountLoadingDOM(phobias) {
     }
 }
 
-//funcao que adiciona observer
 function addingObserver(htmlBodySelected) {
     try {
         const observer = new MutationObserver((mutationsList, observer) => {
@@ -360,7 +353,7 @@ function addingObserver(htmlBodySelected) {
                 `;
 
                 document.body.appendChild(loadingContainer);
-                // Apply the blur to the images
+
                 const allImgs = document.querySelectorAll("img");
                 const imgArray = Array.from(allImgs);
                 let newImgs = imgArray.slice(lastImagesCount);
@@ -381,7 +374,7 @@ function addingObserver(htmlBodySelected) {
                     let imageUrls = [];
                     newImgs.forEach((img) => {
                         img.style.filter = "blur(10px)";
-                        // img.style.filter = "blur(20px)";
+
                         let src = img.src || img.currentSrc || img.dataset.src;
                         if (src && !imageUrls.includes(src)) {
                             if (src.substring(0, 5) === "https" || src.substring(0, 4) === "http") {
@@ -478,7 +471,7 @@ function addingObserver(htmlBodySelected) {
                             }
                         })
                         .catch((error) => {
-                            // Este bloco será executado se houver um erro em qualquer uma das promessas
+
                             console.error("Erro ao aguardar todas as iterações:", error);
                             if (document.body.contains(loadingContainer)) {
                                 document.body.removeChild(loadingContainer);
@@ -660,9 +653,6 @@ async function postImgs(url = "", data = {}) {
         console.log(error);
     } finally {
     }
-    /* const json = await response.json();
-    console.log(json);
-    return json; // parses JSON response into native JavaScript objects */
 }
 
 function applyNoFilter() {
@@ -673,7 +663,6 @@ function applyNoFilter() {
     return true;
 }
 
-//funcao que ouve as mensagens e aplica a funcao de acordo com seus conteúdos
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.action) {
         case "mountLoadingDOM":
@@ -706,29 +695,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 }, 1);
             }
             return true;
-        // case "phobiaOptionsChanged":
-        //     try {
-        //         phobias = message.phobias;
-        //         setTimeout(function () {
-        //             sendResponse({ status: true });
-        //         }, 1);
-        //     } catch (error) {
-        //         setTimeout(function () {
-        //             sendResponse({ status: false });
-        //         }, 1);
-        //     }
-        //     return true;
-        // case "addingObserver":
-        //   if(addingObserver()){
-        //     setTimeout(function() {
-        //       sendResponse({status: true});
-        //     }, 1);
-        //   }else{
-        //     setTimeout(function() {
-        //       sendResponse({status: false});
-        //     }, 1);
-        //   }
-        //   return true
+
         default:
             return true;
     }
